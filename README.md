@@ -1,16 +1,15 @@
-# GCSE Boost V0.11A.3 — Question Mix Fix
+# GCSE Boost V0.11A.6 — Maths MCQ Repair
 
-Normal 8-question missions now explicitly build the intended mix:
-- up to 5 multiple-choice questions
-- up to 2 short/calculation questions
-- up to 1 written/application question
-- fallback fills only where a subject pool genuinely lacks a type
-- final order is shuffled
+The mission selector was asking for five MCQs, but the rebuilt Maths question bank contains
+many calculation questions stored as short-answer records. Asking the selector for five MCQs
+cannot create question types that are not available in its pool.
 
-The previous bug happened because the anti-repetition pass was applied to the combined
-8-question candidate list and could discard the MCQ candidates while filling the mission.
-
-Also improves algebra wording at display time:
-`Solve 8x + 4 = 132.` becomes `Solve 8x + 4 = 132. What is x?`
-
-Account Foundation, full 8-question missions and GitHub Pages fixes are retained.
+V0.11A.6 fixes this at the question-engine level:
+- existing genuine MCQs remain unchanged
+- suitable numeric Maths short-answer questions can be presented as MCQs during normal missions
+- three plausible numeric distractors are generated around the correct answer
+- the underlying correct answer remains unchanged
+- normal missions can now reach the intended MCQ-heavy mix
+- typed calculation questions remain in the mission too
+- written/application questions remain where available
+- answer locking and wording fixes are retained
