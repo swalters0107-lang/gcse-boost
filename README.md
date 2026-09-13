@@ -1,13 +1,8 @@
-# GCSE Boost V0.11A.7 — Enforced MCQ Mission Mix
-
-This repair changes the mission builder itself rather than relying on the anti-repetition selector.
-
-For a normal Maths mission it now:
-1. Builds the available MCQ pool, including suitable numeric calculation questions.
-2. Adds up to 5 MCQs to the mission first.
-3. Adds up to 2 typed/short questions.
-4. Adds up to 1 written/application question.
-5. Only then fills any genuinely missing slots.
-6. Shuffles the final 8 questions.
-
-This means a later anti-repeat pass can no longer discard the multiple-choice questions.
+# GCSE Boost V0.11A.8 — Smart Variety
+- Keeps the stable 8-question / MCQ-heavy mission structure.
+- Treats number-swapped versions of the same wording as one pattern.
+- Strongly deprioritises recently served patterns.
+- Penalises too many questions from the same topic in one mission.
+- Retains adaptive practice and fallback if a subject pool is tight.
+- Profiles, switching, answer lock, wording and GitHub Pages fixes retained.
+Test with 2–3 fresh Maths missions and check that topic/pattern variety improves.
