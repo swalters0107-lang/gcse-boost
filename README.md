@@ -1,10 +1,14 @@
-# GCSE Boost V0.11A.26 — RE & History Content Expansion
+# GCSE Boost V0.11A.27 — My School Week
 
-Built from stable V0.11A.25.
+Adds a per-learner Monday-Friday school schedule inside Profile.
 
-- Expanded Pearson Edexcel RE across all selectable religion/ethics areas.
-- Expanded Pearson Edexcel History across all 17 selectable option areas.
-- Grade 4–7 progression metadata added.
-- Existing selectable-course filtering retained per learner.
-- Existing shop, themes, coins, profiles, RE Home tile and mobile UI retained.
-- Added 252 new curated question records in this expansion.
+Today's Mission now:
+- prioritises subjects the learner has at school today
+- combines timetable relevance with recent accuracy / weak areas
+- considers how recently a subject was practised
+- still falls back to the full subject set when no timetable is entered or at weekends
+- explains why the mission was recommended on Home
+
+The Home screen also shows today's school subjects.
+
+All V0.11A.26 RE/History content, shop, themes, profiles, coins and progress features are retained.
