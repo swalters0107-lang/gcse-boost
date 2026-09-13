@@ -1,8 +1,7 @@
-# GCSE Boost V0.11A.16.1 — Test Coins
+# GCSE Boost V0.11A.16.2 — Shop Home Repair
 
-Test learner `L-ELJP-426T` receives a displayed balance of 999,999 Boost Coins
-and shop purchases do not reduce that balance.
+Targeted repair from V0.11A.16.1.
+The Shop Home button called `closeOverlay()`, but the app's real navigation helper is
+`goHome()` / `closeOverlays()`. Shop Home now uses `goHome()`.
 
-All other learner profiles use the normal coin economy.
-
-Built from V0.11A.16; shop, achievements, profile runtime fix and learning engine retained.
+Test learner unlimited coins and all V0.11A.16 shop/achievement features are retained.
