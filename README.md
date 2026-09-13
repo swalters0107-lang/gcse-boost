@@ -1,12 +1,15 @@
-# GCSE Boost V0.11A.17 — Full App Themes
+# GCSE Boost V0.11A.18 — Expanded Shop & Ultra Rare Collection
 
-Equipping a theme in Boost Shop now changes the appearance of the whole application,
-not only the Shop preview.
+Adds more avatars, animated frames, titles and full-app themes.
 
-- Classic: original GCSE Boost appearance
-- Space: deep-space background, translucent dark cards and blue/purple controls
-- Arcade: dark neon grid, cyan/magenta cards and controls
-- Theme persists per learner profile
-- Switching learner restores that learner's equipped theme
-- Shop, Profile, lessons, categories and overlays inherit the equipped appearance
-- Jealous test learner unlimited coins retained
+Ultra Rare 10,000 coin collection:
+- Cosmic Mind avatar
+- Black Hole avatar
+- Cosmic Storm frame
+- Diamond Energy frame
+- Elite Scholar title
+- Cosmic Ultra theme
+- Diamond Ultra theme
+
+Also adds additional Rare, Epic and Legendary cosmetics, Deep Ocean and Inferno themes.
+Jealous test learner retains 999,999 coins.

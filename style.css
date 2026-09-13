@@ -79,3 +79,25 @@ body.app-theme-arcade .primary,body.app-theme-arcade .shop-home-btn{background:l
 body.app-theme-arcade .secondary{background:#151515!important;color:#00f5c8!important;border-color:#00f5c8!important}
 body.app-theme-arcade .app-overlay{background:linear-gradient(160deg,#090909,#181022,#071815)!important;color:#fff}
 body.app-theme-arcade .stats>div{background:#111;border:1px solid rgba(255,0,204,.35);border-radius:10px}
+
+/* V0.11A.18 expanded cosmetics */
+.rarity-ultra.rare,.rarity-ultra-rare{position:relative;border:2px solid rgba(255,215,0,.7)!important;box-shadow:0 0 10px rgba(255,215,0,.45),0 0 28px rgba(159,72,255,.28)!important;animation:ultraShop 1.5s ease-in-out infinite alternate}
+.frame_rainbow{box-shadow:0 0 7px 4px #ff3b7a,0 0 17px 7px #4ee6ff;animation:rainbowFrame 1.2s linear infinite}
+.frame_ice{box-shadow:0 0 8px 4px #e8fbff,0 0 20px 8px #5ad9ff;animation:iceFrame 1.3s ease-in-out infinite alternate}
+.frame_crown{box-shadow:0 0 7px 4px #ffd84d,0 0 20px 8px #ff9d00;animation:crownFrame 1s ease-in-out infinite alternate}
+.frame_cosmic{box-shadow:0 0 8px 4px #fff,0 0 17px 8px #8c52ff,0 0 30px 12px #ff3ec8;animation:cosmicFrame .85s linear infinite}
+.frame_diamond{box-shadow:0 0 8px 5px #fff,0 0 19px 9px #77edff,0 0 32px 13px #c7a8ff;animation:diamondFrame 1s ease-in-out infinite alternate}
+body.app-theme-ocean{background:radial-gradient(circle at 20% 5%,#1fb8d9 0,transparent 25%),linear-gradient(160deg,#031d36,#064f70 55%,#022333);background-attachment:fixed;color:#f4fdff}
+body.app-theme-fire{background:radial-gradient(circle at 50% 100%,rgba(255,121,0,.5),transparent 35%),linear-gradient(155deg,#220606,#571109 55%,#160303);background-attachment:fixed;color:#fff8ee}
+body.app-theme-cosmic{background:radial-gradient(circle at 15% 18%,rgba(255,64,214,.45),transparent 18%),radial-gradient(circle at 82% 25%,rgba(54,224,255,.38),transparent 18%),radial-gradient(circle at 55% 78%,rgba(121,69,255,.42),transparent 22%),linear-gradient(145deg,#050518,#160735,#07172c);background-attachment:fixed;color:#fff}
+body.app-theme-diamond{background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.8),transparent 10%),linear-gradient(145deg,#dffaff,#9cecff 42%,#d7c8ff 75%,#f9fbff);background-attachment:fixed;color:#10223c}
+body.app-theme-ocean .card,body.app-theme-ocean .panel,body.app-theme-ocean .progressCard,body.app-theme-ocean .profile-home-card,body.app-theme-ocean .subject,body.app-theme-ocean .stat-card,
+body.app-theme-fire .card,body.app-theme-fire .panel,body.app-theme-fire .progressCard,body.app-theme-fire .profile-home-card,body.app-theme-fire .subject,body.app-theme-fire .stat-card,
+body.app-theme-cosmic .card,body.app-theme-cosmic .panel,body.app-theme-cosmic .progressCard,body.app-theme-cosmic .profile-home-card,body.app-theme-cosmic .subject,body.app-theme-cosmic .stat-card{background:rgba(8,12,30,.72)!important;color:#fff!important;border-color:rgba(255,255,255,.2)!important}
+body.app-theme-diamond .card,body.app-theme-diamond .panel,body.app-theme-diamond .progressCard,body.app-theme-diamond .profile-home-card,body.app-theme-diamond .subject,body.app-theme-diamond .stat-card{background:rgba(255,255,255,.78)!important;color:#10223c!important;border-color:rgba(81,176,210,.32)!important;box-shadow:0 8px 24px rgba(62,149,190,.18)}
+body.app-theme-ocean .app-overlay{background:linear-gradient(160deg,#031d36,#064f70,#022333)!important;color:#fff}
+body.app-theme-fire .app-overlay{background:linear-gradient(155deg,#220606,#571109,#160303)!important;color:#fff}
+body.app-theme-cosmic .app-overlay{background:linear-gradient(145deg,#050518,#160735,#07172c)!important;color:#fff}
+body.app-theme-diamond .app-overlay{background:linear-gradient(145deg,#dffaff,#9cecff,#d7c8ff)!important;color:#10223c}
+@keyframes ultraShop{to{transform:translateY(-2px);filter:brightness(1.18)}}@keyframes rainbowFrame{50%{filter:hue-rotate(180deg);transform:scale(1.04)}100%{filter:hue-rotate(360deg)}}@keyframes iceFrame{to{filter:brightness(1.35);transform:scale(1.04)}}@keyframes crownFrame{to{box-shadow:0 0 12px 6px #fff4a3,0 0 28px 11px #ff9d00}}@keyframes cosmicFrame{50%{filter:hue-rotate(100deg);transform:rotate(5deg)}100%{filter:hue-rotate(220deg)}}@keyframes diamondFrame{to{filter:brightness(1.35);transform:scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.rarity-ultra-rare,.frame_rainbow,.frame_ice,.frame_crown,.frame_cosmic,.frame_diamond{animation:none!important}}
