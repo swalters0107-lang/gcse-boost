@@ -1,23 +1,8 @@
-# GCSE Boost V0.11A.16 — Boost Shop & Achievement Progression
+# GCSE Boost V0.11A.16.1 — Test Coins
 
-Built on the stable V0.11A.15 profile/runtime baseline.
+Test learner `L-ELJP-426T` receives a displayed balance of 999,999 Boost Coins
+and shop purchases do not reduce that balance.
 
-## Boost Coins
-- Mission 1 each day: 100 coins
-- Mission 2: 75
-- Mission 3: 50
-- Mission 4+: 25
-- Boss win: +100
-- Successful Recovery Round: +25
-- Achievement level-ups award bonus coins
-- XP is never spent.
+All other learner profiles use the normal coin economy.
 
-## Shop
-Avatars, animated avatars, animated/glowing frames, titles and themes.
-Items are Buy → Own → Equip and purchases are stored per learner profile.
-
-## Achievement progression
-Streak Master, Question Master, Boss Slayer, Accuracy Ace and All-Rounder.
-Each progresses Bronze → Silver → Gold → Diamond automatically while learning.
-
-No real-money purchases, loot boxes or academic advantages.
+Built from V0.11A.16; shop, achievements, profile runtime fix and learning engine retained.
