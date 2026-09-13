@@ -1,13 +1,12 @@
-# GCSE Boost V0.11A — Account Foundation
+# GCSE Boost V0.11A.1 — GitHub Pages Test Fix
 
-Adds first-run learner profiles, unique learner IDs, multiple profiles per device,
-learner switching, separate local progress keys, and a Beta Accounts diagnostics page.
+This is the GitHub Pages testing build.
 
-Test:
-1. Create Student A and complete a mission.
-2. Note XP/progress.
-3. Switch learner / Beta → Add another learner.
-4. Create Student B and verify separate progress.
-5. Switch back to Student A and verify Student A's progress returns.
+Fixes:
+- Error M02 caused by attempting to fingerprint an undefined question.
+- GitHub Pages relative start URL and scope.
+- Beta service worker changed to network-first so new GitHub uploads appear quickly.
+- Old app caches are removed when the new service worker activates.
+- Account Foundation remains: learner profiles, separate progress, switching and diagnostics.
 
-This build is intentionally local-only. Cloud accounts and cross-device sync come next.
+Upload these files to the ROOT of the existing gcse-boost repository and replace files with the same names.
