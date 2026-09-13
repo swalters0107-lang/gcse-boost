@@ -1,17 +1,16 @@
-# GCSE Boost V0.11A.2 — Full Mission Fix
+# GCSE Boost V0.11A.3 — Question Mix Fix
 
-Fixes missions ending after one question.
+Normal 8-question missions now explicitly build the intended mix:
+- up to 5 multiple-choice questions
+- up to 2 short/calculation questions
+- up to 1 written/application question
+- fallback fills only where a subject pool genuinely lacks a type
+- final order is shuffled
 
-Cause:
-The anti-repetition fingerprint deliberately treats number/template variants as the
-same question pattern. During mission construction that could collapse an 8-question
-mission to only one question.
+The previous bug happened because the anti-repetition pass was applied to the combined
+8-question candidate list and could discard the MCQ candidates while filling the mission.
 
-Fix:
-- First preference still avoids recently served question patterns.
-- If there are not enough different patterns, the mission fills with different actual
-  questions rather than ending early.
-- Exact duplicate prompts are still blocked inside the same mission.
-- Normal missions return to the intended 8 questions.
-- Boss Battles and Recovery use the same safe selector.
-- V0.11A account foundation and GitHub Pages fixes are retained.
+Also improves algebra wording at display time:
+`Solve 8x + 4 = 132.` becomes `Solve 8x + 4 = 132. What is x?`
+
+Account Foundation, full 8-question missions and GitHub Pages fixes are retained.
