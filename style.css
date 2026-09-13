@@ -239,3 +239,5 @@ body[class*="app-theme-"] .stats>div{
     overflow:visible!important;
   }
 }
+
+.course-settings-btn{width:100%;margin:8px 0 14px}.course-options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;margin:14px 0 18px}.course-option{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid rgba(120,120,160,.25);border-radius:12px;background:rgba(255,255,255,.06)}.course-option input{width:20px;height:20px;accent-color:#7650ff}.course-option span{font-weight:700}
