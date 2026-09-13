@@ -27,13 +27,13 @@ function learnerStateKey(id){return BASE_KEY+"::"+id}
 let KEY=accounts.active?learnerStateKey(accounts.active):BASE_KEY+"::guest";
 function activeLearner(){return accounts.active&&accounts.learners[accounts.active]?accounts.learners[accounts.active]:null}
 function ensureLearner(name,avatar){let id=makeLearnerId();accounts.learners[id]={id,name:(name||"Learner").trim().slice(0,24)||"Learner",avatar:avatar||"🎓",created:new Date().toISOString()};accounts.active=id;saveAccounts(accounts);KEY=learnerStateKey(id);return accounts.learners[id]}
-function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.6 beta · stored on this device only</small></div></div>`}
+function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.7 beta · stored on this device only</small></div></div>`}
 function pickAccountAvatar(b){document.querySelectorAll(".avatar-pick").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("newLearnerAvatar").value=b.dataset.avatar}
 function createLearnerFromWelcome(){let n=document.getElementById("newLearnerName").value.trim();if(!n){alert("Please enter a display name.");return}ensureLearner(n,document.getElementById("newLearnerAvatar").value);location.reload()}
 function showAccountWelcome(){let o=document.createElement("div");o.id="accountWelcome";o.className="account-overlay";o.innerHTML=accountWelcomeHTML();document.body.appendChild(o)}
 function switchLearner(id){if(!accounts.learners[id])return;accounts.active=id;saveAccounts(accounts);location.reload()}
 function addAnotherLearner(){closeOverlays();showAccountWelcome()}
-function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.6</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
+function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.7</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
 function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
 
 let state=load(),session=null;if(!Array.isArray(state.served))state.served=[];state.missions=state.missions||0;state.bossWins=state.bossWins||0;state.lastBoss=state.lastBoss||null;
@@ -63,15 +63,16 @@ function readinessQuestions(subject){let p=BANK.map(normalise).filter(q=>q.subje
 function numericDistractors(q){
  let raw=String(q.expected??"").trim(),n=Number(raw);
  if(!Number.isFinite(n))return null;
- let vals=[n,n+1,n-1,n+2,n-2,n*2,n/2].filter(x=>Number.isFinite(x)&&x!==n);
- let uniq=[];for(let x of vals){let v=Number.isInteger(x)?String(x):String(Math.round(x*100)/100);if(v!==raw&&!uniq.includes(v))uniq.push(v)}
- if(uniq.length<3)return null;
- let choices=[raw,...uniq.slice(0,3)].sort(()=>Math.random()-.5);
- return {...q,kind:"mcq",choices,correctIndex:choices.indexOf(raw),expected:raw};
+ let candidates=[n+1,n-1,n+2,n-2,n+5,n-5,n*2];
+ let wrong=[];
+ for(const x of candidates){if(!Number.isFinite(x)||x===n)continue;let v=Number.isInteger(x)?String(x):String(Math.round(x*100)/100);if(v!==raw&&!wrong.includes(v))wrong.push(v)}
+ if(wrong.length<3)return null;
+ let choices=[raw,...wrong.slice(0,3)].sort(()=>Math.random()-.5);
+ return {...q,kind:"mcq",choices:choices,correctIndex:choices.indexOf(raw),expected:raw};
 }
 function missionMCQPool(subject,p){
  let mc=p.filter(q=>q.kind==="mcq");
- if(subject==="Maths"&&mc.length<5){
+ if(subject==="Maths"){
    for(const q of p.filter(q=>q.kind==="short")){
      let mq=numericDistractors(q);
      if(mq)mc.push(mq);
@@ -79,8 +80,18 @@ function missionMCQPool(subject,p){
  }
  return mc;
 }
-
-function choose(subject,n=8){let p=pool(subject),weak=topicStats(subject).filter(x=>x.n&&x.acc<75).slice(0,4).map(x=>x.topic);p.sort((a,b)=>(weak.includes(b.topic)?1:0)-(weak.includes(a.topic)?1:0)||Math.random()-.5);let mc=missionMCQPool(subject,p),sh=p.filter(q=>q.kind==="short"),wr=p.filter(q=>q.kind==="written"),out=[];function add(group,count){for(const q of diversePick(group,count)){if(out.length<n&&!out.some(x=>x.prompt===q.prompt))out.push(q)}}add(mc,Math.min(5,n));add(sh,Math.min(2,n-out.length));add(wr,Math.min(1,n-out.length));for(const q of diversePick(p,n)){if(out.length<n&&!out.some(x=>x.prompt===q.prompt))out.push(q)}return out.slice(0,n).sort(()=>Math.random()-.5)}
+function choose(subject,n=8){
+ let p=pool(subject),weak=topicStats(subject).filter(x=>x.n&&x.acc<75).slice(0,4).map(x=>x.topic);
+ p.sort((a,b)=>(weak.includes(b.topic)?1:0)-(weak.includes(a.topic)?1:0)||Math.random()-.5);
+ let mc=missionMCQPool(subject,p),sh=p.filter(q=>q.kind==="short"),wr=p.filter(q=>q.kind==="written"),out=[];
+ function addUnique(group,count){for(const q of [...group].sort(()=>Math.random()-.5)){if(out.length>=n||count<=0)break;if(out.some(x=>x.prompt===q.prompt))continue;out.push(q);count--}}
+ // Enforce the mission mix BEFORE anti-repeat fallback. MCQs cannot be discarded later.
+ addUnique(mc,Math.min(5,n));
+ addUnique(sh,Math.min(2,n-out.length));
+ addUnique(wr,Math.min(1,n-out.length));
+ addUnique(p,n-out.length);
+ return out.slice(0,n).sort(()=>Math.random()-.5);
+}
 function home(){show("home");let pn=document.getElementById("profileName"),pa=document.getElementById("profileAvatar"),pl=document.getElementById("profileLevel");if(pn)pn.textContent=learnerName();if(pa)pa.textContent=learnerAvatar();if(pl)pl.textContent="Level "+levelFromXP();$("streak").textContent=state.streak;$("xp").textContent=state.xp;$("lives").textContent=state.lives;$("missionTitle").textContent=todaySubject()+" Boost";renderProgress();renderWeak();renderBoss();["Maths","Science"].forEach(sub=>{const b=$(sub.toLowerCase()+"Ready");if(b){b.classList.toggle("hidden",!readinessEligible(sub));b.textContent="TAKE "+sub.toUpperCase()+" HIGHER READINESS TEST"}const t=$(sub.toLowerCase()+"Tier");if(t)t.textContent=state.tiers[sub]})}
 function renderProgress(){const box=$("progressCards");if(!box)return;box.innerHTML="";["Maths","English","Science","History","Geography","German","Drama","Citizenship","Sport Science","Catering","Spanish"].forEach(sub=>{const st=subjectStats(sub),weak=topicStats(sub).filter(x=>x.n).slice(0,2);const d=document.createElement("div");d.className="progressCard";d.innerHTML=`<b>${sub} <em class="board">${BOARD[sub]}</em></b><strong>${st.n?st.acc+"%":"New"}</strong><small>${st.n} recent answers${weak.length?" • Focus: "+weak.map(x=>x.topic).join(", "):""}</small>`;box.appendChild(d)})}
 function startReadiness(subject){const qs=readinessQuestions(subject);if(qs.length<10){alert("Keep practising first — more Higher bridge questions are needed.");return}session={subject,qs,index:0,correct:0,answered:false,isReadiness:true,isBoss:false,recoveries:0,sessionMistakes:[]};show("lesson");render()}
