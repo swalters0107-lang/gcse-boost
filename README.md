@@ -1,7 +1,12 @@
-# GCSE Boost V0.11A.16.2 — Shop Home Repair
+# GCSE Boost V0.11A.17 — Full App Themes
 
-Targeted repair from V0.11A.16.1.
-The Shop Home button called `closeOverlay()`, but the app's real navigation helper is
-`goHome()` / `closeOverlays()`. Shop Home now uses `goHome()`.
+Equipping a theme in Boost Shop now changes the appearance of the whole application,
+not only the Shop preview.
 
-Test learner unlimited coins and all V0.11A.16 shop/achievement features are retained.
+- Classic: original GCSE Boost appearance
+- Space: deep-space background, translucent dark cards and blue/purple controls
+- Arcade: dark neon grid, cyan/magenta cards and controls
+- Theme persists per learner profile
+- Switching learner restores that learner's equipped theme
+- Shop, Profile, lessons, categories and overlays inherit the equipped appearance
+- Jealous test learner unlimited coins retained
