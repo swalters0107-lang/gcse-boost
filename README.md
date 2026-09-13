@@ -1,14 +1,11 @@
-# GCSE Boost V0.11A.27 — My School Week
+# GCSE Boost V0.11A.28 — Organised Profile
 
-Adds a per-learner Monday-Friday school schedule inside Profile.
+Reorganises Profile using the same clear visual hierarchy as Boost Shop.
 
-Today's Mission now:
-- prioritises subjects the learner has at school today
-- combines timetable relevance with recent accuracy / weak areas
-- considers how recently a subject was practised
-- still falls back to the full subject set when no timetable is entered or at weekends
-- explains why the mission was recommended on Home
+Tabs:
+- Overview — learner, coins, streak, XP, pathway
+- School Week — timetable editor
+- Grades — estimated current grades
+- Rewards — achievements and progression
 
-The Home screen also shows today's school subjects.
-
-All V0.11A.26 RE/History content, shop, themes, profiles, coins and progress features are retained.
+No learning data or profile features were removed. V0.11A.27 timetable-aware Today's Mission remains intact.
