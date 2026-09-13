@@ -1,7 +1,12 @@
-# GCSE Boost V0.11A.13 — Profile Click Repair
+# GCSE Boost V0.11A.14 — Static Profile Button Repair
 
-Targeted repair from V0.11A.12.
-- Fixes the Profile launcher: the page uses `main.app`, not an element with `id="app"`.
-- Reattaches the profile launcher whenever Home is rendered.
-- Keeps the Estimated Current Grades panel.
-- Keeps categories, All Topics coverage, Smart Variety, division coverage and all lesson logic unchanged.
+Root cause fixed:
+The Home page already contains a static `profileLaunch` button. The previous launcher
+function saw that the button existed and returned before attaching its click handler.
+
+V0.11A.14:
+- explicitly binds the existing Profile button to `showProfile`
+- also binds it during DOMContentLoaded as a robust fallback
+- static HTML now calls `showProfile()` directly
+- retains Estimated Current Grades, categories, Coverage Balance, Smart Variety,
+  profiles, MCQ mix, answer lock and all V0.11A.13 learning logic
