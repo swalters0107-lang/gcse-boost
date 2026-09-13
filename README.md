@@ -1,13 +1,23 @@
-# GCSE Boost V0.11A.15 — Profile Runtime Fix
+# GCSE Boost V0.11A.16 — Boost Shop & Achievement Progression
 
-Actual root cause:
-V0.11A.11 introduced `escapeHtml()` calls for Categories and Estimated Grades, but the
-application did not define that helper. Opening Profile called `gradeCardsHTML()`,
-which called the missing function and threw a JavaScript ReferenceError. The button
-was clickable, but the profile renderer crashed immediately, making it appear dead.
+Built on the stable V0.11A.15 profile/runtime baseline.
 
-Fix:
-- adds the missing `escapeHtml()` helper
-- retains the direct Profile click binding from V0.11A.14
-- keeps Estimated Current Grades, category selection, Coverage Balance, Smart Variety,
-  division coverage, profiles, MCQ mix and answer locking
+## Boost Coins
+- Mission 1 each day: 100 coins
+- Mission 2: 75
+- Mission 3: 50
+- Mission 4+: 25
+- Boss win: +100
+- Successful Recovery Round: +25
+- Achievement level-ups award bonus coins
+- XP is never spent.
+
+## Shop
+Avatars, animated avatars, animated/glowing frames, titles and themes.
+Items are Buy → Own → Equip and purchases are stored per learner profile.
+
+## Achievement progression
+Streak Master, Question Master, Boss Slayer, Accuracy Ace and All-Rounder.
+Each progresses Bronze → Silver → Gold → Diamond automatically while learning.
+
+No real-money purchases, loot boxes or academic advantages.
