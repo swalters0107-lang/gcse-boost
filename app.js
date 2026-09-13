@@ -30,13 +30,13 @@ const TEST_LEARNER_ID="L-ELJP-426T";
 function isTestLearner(){return accounts.active===TEST_LEARNER_ID}
 function coinBalance(){return isTestLearner()?999999:(Number(state.coins)||0)}
 function ensureLearner(name,avatar){let id=makeLearnerId();accounts.learners[id]={id,name:(name||"Learner").trim().slice(0,24)||"Learner",avatar:avatar||"🎓",created:new Date().toISOString()};accounts.active=id;saveAccounts(accounts);KEY=learnerStateKey(id);return accounts.learners[id]}
-function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.20.1 beta · stored on this device only</small></div></div>`}
+function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.21.1 beta · stored on this device only</small></div></div>`}
 function pickAccountAvatar(b){document.querySelectorAll(".avatar-pick").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("newLearnerAvatar").value=b.dataset.avatar}
 function createLearnerFromWelcome(){let n=document.getElementById("newLearnerName").value.trim();if(!n){alert("Please enter a display name.");return}ensureLearner(n,document.getElementById("newLearnerAvatar").value);location.reload()}
 function showAccountWelcome(){let o=document.createElement("div");o.id="accountWelcome";o.className="account-overlay";o.innerHTML=accountWelcomeHTML();document.body.appendChild(o)}
 function switchLearner(id){if(!accounts.learners[id])return;accounts.active=id;saveAccounts(accounts);location.reload()}
 function addAnotherLearner(){closeOverlays();showAccountWelcome()}
-function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.20</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
+function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.21</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
 function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
 
 let state=load(),session=null;if(!Array.isArray(state.served))state.served=[];state.missions=state.missions||0;state.bossWins=state.bossWins||0;state.lastBoss=state.lastBoss||null;
@@ -131,7 +131,55 @@ function applyAppTheme(){let id=equippedItem("theme")?.id||"theme_default";docum
 function displayAvatar(){return equippedItem("avatar")?.icon||learnerAvatar()}
 function avatarDecorHTML(big=false){let av=equippedItem("avatar"),fr=equippedItem("frame"),title=equippedItem("title"),fc=fr&&fr.id!=="frame_none"?" "+fr.id:"",anim=av?.animated?" avatar-animated":"";return `<div class="avatar-wrap${fc}${anim}"><span class="${big?"shop-avatar-big":"shop-avatar"}">${escapeHtml(av?.icon||learnerAvatar())}</span></div>${title&&title.id!=="title_none"?`<span class="equipped-title">${escapeHtml(title.name)}</span>`:""}`}
 function buyOrEquip(id){let item=SHOP_ITEMS.find(x=>x.id===id);if(!item)return;if(!state.ownedShop.includes(id)){if(!isTestLearner()&&state.coins<item.price){alert(`You need ${item.price-state.coins} more Boost Coins 🪙`);return}if(!isTestLearner())state.coins-=item.price;state.ownedShop.push(id)}state.equipped[item.type]=id;if(item.type==="avatar")state.profile={...(state.profile||{}),avatar:item.icon};applyAppTheme();save();showShop()}
-function shopHTML(){let groups=[["avatar","Avatars"],["frame","Animated Frames"],["title","Titles"],["theme","Themes"]];return `<section class="profile-page shop-page"><div class="profile-nav"><button class="secondary" onclick="goHome()">← Home</button><b>🪙 ${coinBalance()} Boost Coins</b></div><div class="shop-preview ${equippedItem("theme")?.id||""}"><div>${avatarDecorHTML(true)}</div><h2>${escapeHtml(learnerName())}</h2><small>Live preview</small></div>${groups.map(([type,label])=>`<div class="panel"><h3>${label}</h3><div class="shop-grid">${SHOP_ITEMS.filter(x=>x.type===type).map(x=>{let owned=state.ownedShop.includes(x.id),eq=state.equipped[type]===x.id;return `<div class="shop-item rarity-${x.rarity.toLowerCase()}"><div class="shop-icon ${x.animated?"avatar-animated":""}">${x.icon}</div><b>${escapeHtml(x.name)}</b><small>${x.rarity}</small><button ${eq?"disabled":""} onclick="buyOrEquip('${x.id}')">${eq?"Equipped ✓":owned?"Equip":x.price?`🪙 ${x.price}`:"Equip"}</button></div>`}).join("")}</div></div>`).join("")}</section>`}
+function shopHTML(){
+  const types=[["avatar","👤","Avatars","Show your style"],["frame","▣","Frames","Stand out"],["theme","🎨","Themes","Change the look"],["title","👑","Titles","Earn and display"]];
+  const active=window.gcseShopTab||"avatar";
+  const balance=coinBalance();
+  const rarityRank={"Common":1,"Rare":2,"Epic":3,"Legendary":4,"Ultra Rare":5};
+  const items=SHOP_ITEMS.filter(x=>x.type===active).slice().sort((a,b)=>(a.price-b.price)||(rarityRank[a.rarity]-rarityRank[b.rarity]));
+  const current=equippedItem(active);
+  const itemCard=x=>{
+    const owned=state.ownedShop.includes(x.id)||x.price===0;
+    const equipped=state.equipped[x.type]===x.id;
+    const can=balance>=x.price;
+    const rarity=(x.rarity||"Common").toLowerCase().replace(/\s+/g,"-");
+    return `<div class="shop-v2-item rarity-${rarity}">
+      <div class="shop-v2-icon ${x.type==="frame"?x.id:""} ${x.animated?"avatarFloat":""}">${escapeHtml(x.icon)}</div>
+      <div class="shop-v2-name">${escapeHtml(x.name)}</div>
+      <div class="shop-v2-rarity">${escapeHtml(x.rarity||"Common")}</div>
+      <div class="shop-v2-price">🪙 ${Number(x.price).toLocaleString()}</div>
+      <button class="${equipped?"shop-equipped":owned?"shop-owned":"shop-buy"}" ${(!owned&&!can)?"disabled":""} onclick="buyOrEquip('${x.id}')">${equipped?"EQUIPPED":owned?"EQUIP":"BUY"}</button>
+    </div>`;
+  };
+  const groups=["Common","Rare","Epic","Legendary","Ultra Rare"].map(r=>{
+    const arr=items.filter(x=>(x.rarity||"Common")===r);
+    if(!arr.length)return "";
+    const cls=r.toLowerCase().replace(/\s+/g,"-");
+    return `<section class="shop-v2-tier tier-${cls}">
+      <div class="shop-v2-tierhead"><span>${r==="Ultra Rare"?"💎":r==="Legendary"?"👑":r==="Epic"?"✨":r==="Rare"?"🔷":"⚪"} ${escapeHtml(r)}</span><small>${r==="Ultra Rare"?"The ultimate rewards":r==="Legendary"?"Truly special":r==="Epic"?"Level up":r==="Rare"?"Stand out":"Great start"}</small></div>
+      <div class="shop-v2-grid">${arr.map(itemCard).join("")}</div>
+    </section>`;
+  }).join("");
+  return `<div class="shop-v2-shell">
+    <header class="shop-v2-header">
+      <button class="shop-v2-home" onclick="goHome()">← Home</button>
+      <div class="shop-v2-brand"><b>🛍️ BOOST SHOP</b><span>Make learning your style</span></div>
+      <div class="shop-v2-balance">🪙 ${Number(balance).toLocaleString()}</div>
+    </header>
+    <div class="shop-v2-tabs">${types.map(([id,ico,name])=>`<button class="${active===id?"active":""}" onclick="window.gcseShopTab='${id}';showShop()">${ico}<span>${name}</span></button>`).join("")}</div>
+    <div class="shop-v2-layout">
+      <aside class="shop-v2-side">
+        ${types.map(([id,ico,name,sub])=>`<button class="${active===id?"active":""}" onclick="window.gcseShopTab='${id}';showShop()"><b>${ico} ${name}</b><small>${sub}</small></button>`).join("")}
+        <div class="shop-v2-tip"><b>🏆 High Prices = Rarer Items</b><p>Items are organised from lowest to highest price in each category.</p><span>🪙 Collect coins and work your way up!</span></div>
+      </aside>
+      <main class="shop-v2-main">
+        <div class="shop-v2-title"><div><b>${types.find(x=>x[0]===active)[1]} ${types.find(x=>x[0]===active)[2]}</b><span>${types.find(x=>x[0]===active)[3]}</span></div><small>📶 Sorted by price: Low → High</small></div>
+        <div class="shop-v2-preview">${avatarDecorHTML()}<div><b>Your current style</b><span>${current?escapeHtml(current.name):""}</span></div></div>
+        ${groups}
+      </main>
+    </div>
+  </div>`;
+}
 function showShop(){openOverlay("shopOverlay",shopHTML())}
 function achievementHTML(){return ACHIEVEMENTS.map(a=>{let v=a.value(),lvl=currentAchLevel(a),idx=Math.min(lvl,a.levels.length-1),done=lvl>=a.levels.length,target=done?a.levels.at(-1):a.levels[lvl],prev=lvl? a.levels[lvl-1]:0,pc=done?100:Math.max(0,Math.min(100,Math.round((v-prev)*100/(target-prev)))),label=done?"Diamond":lvl?a.labels[lvl-1]:"Starting";return `<div class="achievement-progress"><div class="achievement-head"><span>${a.icon} <b>${a.name}</b></span><strong>${label}</strong></div><div class="achievement-bar"><i style="width:${pc}%"></i></div><small>${v}${a.unit==="%"?"%":" "+a.unit} · ${done?"Maximum level":`${Math.max(0,target-v)} to ${a.labels[lvl]}`}</small></div>`}).join("")}
 

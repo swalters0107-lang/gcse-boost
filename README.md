@@ -1,13 +1,11 @@
-# GCSE Boost V0.11A.20 — Shop Economy Rebalance
+# GCSE Boost V0.11A.21 — Boost Shop Redesign
 
-Adds 18 mid-range rewards across roughly 400–3,000 Boost Coins and lowers the prices
-of selected existing Legendary items to create a smoother reward ladder.
-
-New examples:
-Cool Cat, Gamer, Detective, Knight, Super Hero, Mad Scientist;
-Spark, Electric Blue, Toxic Glow, Solar Flare, Magic Aura frames;
-Rising Star, Brainiac, Streak Hero and Revision Ace titles;
-Candy Pop, Mint Fresh and Golden Glow full-app themes.
-
-The 10,000 coin Ultra Rare collection remains the prestige tier.
-Jealous tester retains 999,999 coins.
+The in-app shop has been rebuilt around the approved visual direction:
+- dedicated Avatars / Frames / Themes / Titles navigation
+- rarity sections: Common, Rare, Epic, Legendary, Ultra Rare
+- each category sorted automatically from lowest to highest coin price
+- large coin balance header
+- current-style preview
+- neon rarity styling and premium Ultra Rare section
+- responsive two-column mobile shop
+- existing purchases, equips, themes, frames and tester coins retained
