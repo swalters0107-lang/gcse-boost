@@ -1,15 +1,13 @@
-# GCSE Boost V0.11A.18 — Expanded Shop & Ultra Rare Collection
+# GCSE Boost V0.11A.20 — Shop Economy Rebalance
 
-Adds more avatars, animated frames, titles and full-app themes.
+Adds 18 mid-range rewards across roughly 400–3,000 Boost Coins and lowers the prices
+of selected existing Legendary items to create a smoother reward ladder.
 
-Ultra Rare 10,000 coin collection:
-- Cosmic Mind avatar
-- Black Hole avatar
-- Cosmic Storm frame
-- Diamond Energy frame
-- Elite Scholar title
-- Cosmic Ultra theme
-- Diamond Ultra theme
+New examples:
+Cool Cat, Gamer, Detective, Knight, Super Hero, Mad Scientist;
+Spark, Electric Blue, Toxic Glow, Solar Flare, Magic Aura frames;
+Rising Star, Brainiac, Streak Hero and Revision Ace titles;
+Candy Pop, Mint Fresh and Golden Glow full-app themes.
 
-Also adds additional Rare, Epic and Legendary cosmetics, Deep Ocean and Inferno themes.
-Jealous test learner retains 999,999 coins.
+The 10,000 coin Ultra Rare collection remains the prestige tier.
+Jealous tester retains 999,999 coins.

@@ -101,3 +101,41 @@ body.app-theme-cosmic .app-overlay{background:linear-gradient(145deg,#050518,#16
 body.app-theme-diamond .app-overlay{background:linear-gradient(145deg,#dffaff,#9cecff,#d7c8ff)!important;color:#10223c}
 @keyframes ultraShop{to{transform:translateY(-2px);filter:brightness(1.18)}}@keyframes rainbowFrame{50%{filter:hue-rotate(180deg);transform:scale(1.04)}100%{filter:hue-rotate(360deg)}}@keyframes iceFrame{to{filter:brightness(1.35);transform:scale(1.04)}}@keyframes crownFrame{to{box-shadow:0 0 12px 6px #fff4a3,0 0 28px 11px #ff9d00}}@keyframes cosmicFrame{50%{filter:hue-rotate(100deg);transform:rotate(5deg)}100%{filter:hue-rotate(220deg)}}@keyframes diamondFrame{to{filter:brightness(1.35);transform:scale(1.07)}}
 @media(prefers-reduced-motion:reduce){.rarity-ultra-rare,.frame_rainbow,.frame_ice,.frame_crown,.frame_cosmic,.frame_diamond{animation:none!important}}
+
+/* V0.11A.19 extra premium collection */
+.frame_laser{box-shadow:0 0 5px 3px #00efff,0 0 17px 8px #145dff;animation:laserFrame .8s linear infinite alternate}
+.frame_aurora{box-shadow:0 0 7px 4px #49ffd1,0 0 20px 9px #bd61ff;animation:auroraFrame 1.5s linear infinite}
+.frame_supernova{box-shadow:0 0 9px 5px #fff,0 0 19px 10px #ffe44d,0 0 35px 15px #ff5b24;animation:supernovaFrame .7s ease-in-out infinite alternate}
+.frame_void{box-shadow:0 0 7px 5px #101018,0 0 20px 10px #803cff,0 0 36px 15px #050509;animation:voidFrame 1.1s linear infinite}
+body.app-theme-forest{background:radial-gradient(circle at 20% 10%,rgba(105,255,167,.24),transparent 20%),linear-gradient(155deg,#061c13,#0b4b2d 55%,#07170f);background-attachment:fixed;color:#f2fff6}
+body.app-theme-sunset{background:radial-gradient(circle at 50% 72%,rgba(255,218,77,.75),transparent 10%),linear-gradient(180deg,#2b155f,#a52b76 52%,#ff7847 80%,#251443);background-attachment:fixed;color:#fff}
+body.app-theme-aurora{background:radial-gradient(circle at 15% 20%,rgba(66,255,196,.45),transparent 20%),radial-gradient(circle at 75% 28%,rgba(202,86,255,.45),transparent 22%),linear-gradient(145deg,#03151c,#11254b 55%,#071b21);background-attachment:fixed;color:#fff}
+body.app-theme-void{background:radial-gradient(circle at 50% 30%,rgba(111,52,255,.32),transparent 18%),radial-gradient(circle at 70% 70%,rgba(224,38,255,.13),transparent 20%),linear-gradient(150deg,#010104,#090511 55%,#020208);background-attachment:fixed;color:#f7f1ff}
+body.app-theme-forest .card,body.app-theme-forest .panel,body.app-theme-forest .progressCard,body.app-theme-forest .profile-home-card,body.app-theme-forest .subject,body.app-theme-forest .stat-card,
+body.app-theme-sunset .card,body.app-theme-sunset .panel,body.app-theme-sunset .progressCard,body.app-theme-sunset .profile-home-card,body.app-theme-sunset .subject,body.app-theme-sunset .stat-card,
+body.app-theme-aurora .card,body.app-theme-aurora .panel,body.app-theme-aurora .progressCard,body.app-theme-aurora .profile-home-card,body.app-theme-aurora .subject,body.app-theme-aurora .stat-card,
+body.app-theme-void .card,body.app-theme-void .panel,body.app-theme-void .progressCard,body.app-theme-void .profile-home-card,body.app-theme-void .subject,body.app-theme-void .stat-card{background:rgba(8,12,24,.74)!important;color:#fff!important;border-color:rgba(255,255,255,.2)!important}
+body.app-theme-forest .app-overlay{background:linear-gradient(155deg,#061c13,#0b4b2d,#07170f)!important;color:#fff}
+body.app-theme-sunset .app-overlay{background:linear-gradient(180deg,#2b155f,#a52b76,#ff7847)!important;color:#fff}
+body.app-theme-aurora .app-overlay{background:linear-gradient(145deg,#03151c,#11254b,#071b21)!important;color:#fff}
+body.app-theme-void .app-overlay{background:linear-gradient(150deg,#010104,#090511,#020208)!important;color:#fff}
+@keyframes laserFrame{to{filter:hue-rotate(90deg);transform:scale(1.05)}}@keyframes auroraFrame{50%{filter:hue-rotate(150deg);transform:scale(1.05)}100%{filter:hue-rotate(300deg)}}@keyframes supernovaFrame{to{transform:scale(1.1);filter:brightness(1.45)}}@keyframes voidFrame{50%{transform:rotate(5deg) scale(1.05);filter:hue-rotate(70deg)}}
+@media(prefers-reduced-motion:reduce){.frame_laser,.frame_aurora,.frame_supernova,.frame_void{animation:none!important}}
+
+/* V0.11A.20 mid-range cosmetics */
+.frame_spark{box-shadow:0 0 6px 3px #fff,0 0 13px 6px #ffe879;animation:sparkFrame 1.2s ease-in-out infinite alternate}
+.frame_electric{box-shadow:0 0 6px 3px #bff8ff,0 0 18px 7px #008cff;animation:electricFrame .8s ease-in-out infinite alternate}
+.frame_poison{box-shadow:0 0 7px 4px #c8ff5a,0 0 18px 8px #43d600;animation:poisonFrame 1.2s linear infinite}
+.frame_sun{box-shadow:0 0 7px 4px #fff4a1,0 0 21px 9px #ff9b19;animation:sunFrame 1s ease-in-out infinite alternate}
+.frame_magic{box-shadow:0 0 8px 4px #ff9ef4,0 0 22px 9px #7e54ff;animation:magicFrame 1.3s linear infinite}
+body.app-theme-candy{background:radial-gradient(circle at 15% 15%,rgba(255,255,255,.55),transparent 12%),linear-gradient(145deg,#ffb5df,#b9d7ff 50%,#d6b8ff);background-attachment:fixed;color:#442b57}
+body.app-theme-mint{background:radial-gradient(circle at 80% 12%,rgba(255,255,255,.7),transparent 14%),linear-gradient(150deg,#d8fff1,#8ee5c3 55%,#b8f1ff);background-attachment:fixed;color:#123f39}
+body.app-theme-gold{background:radial-gradient(circle at 50% 5%,rgba(255,255,255,.7),transparent 13%),linear-gradient(145deg,#fff4b8,#e9b94f 52%,#8c5b12);background-attachment:fixed;color:#402b08}
+body.app-theme-candy .card,body.app-theme-candy .panel,body.app-theme-candy .progressCard,body.app-theme-candy .profile-home-card,body.app-theme-candy .subject,body.app-theme-candy .stat-card,
+body.app-theme-mint .card,body.app-theme-mint .panel,body.app-theme-mint .progressCard,body.app-theme-mint .profile-home-card,body.app-theme-mint .subject,body.app-theme-mint .stat-card,
+body.app-theme-gold .card,body.app-theme-gold .panel,body.app-theme-gold .progressCard,body.app-theme-gold .profile-home-card,body.app-theme-gold .subject,body.app-theme-gold .stat-card{background:rgba(255,255,255,.76)!important;color:inherit!important;border-color:rgba(255,255,255,.5)!important;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+body.app-theme-candy .app-overlay{background:linear-gradient(145deg,#ffb5df,#b9d7ff,#d6b8ff)!important;color:#442b57}
+body.app-theme-mint .app-overlay{background:linear-gradient(150deg,#d8fff1,#8ee5c3,#b8f1ff)!important;color:#123f39}
+body.app-theme-gold .app-overlay{background:linear-gradient(145deg,#fff4b8,#e9b94f,#8c5b12)!important;color:#402b08}
+@keyframes sparkFrame{to{transform:scale(1.04);filter:brightness(1.3)}}@keyframes electricFrame{to{transform:scale(1.05);filter:brightness(1.4)}}@keyframes poisonFrame{50%{filter:hue-rotate(40deg);transform:scale(1.04)}}@keyframes sunFrame{to{transform:scale(1.06);filter:brightness(1.35)}}@keyframes magicFrame{50%{filter:hue-rotate(100deg);transform:rotate(4deg)}}
+@media(prefers-reduced-motion:reduce){.frame_spark,.frame_electric,.frame_poison,.frame_sun,.frame_magic{animation:none!important}}

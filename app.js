@@ -30,13 +30,13 @@ const TEST_LEARNER_ID="L-ELJP-426T";
 function isTestLearner(){return accounts.active===TEST_LEARNER_ID}
 function coinBalance(){return isTestLearner()?999999:(Number(state.coins)||0)}
 function ensureLearner(name,avatar){let id=makeLearnerId();accounts.learners[id]={id,name:(name||"Learner").trim().slice(0,24)||"Learner",avatar:avatar||"🎓",created:new Date().toISOString()};accounts.active=id;saveAccounts(accounts);KEY=learnerStateKey(id);return accounts.learners[id]}
-function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.18.1 beta · stored on this device only</small></div></div>`}
+function accountWelcomeHTML(){return `<div class="account-shell"><div class="account-card"><div class="account-logo">🎓</div><h1>Welcome to GCSE Boost</h1><p>Create a learner profile. Each learner keeps separate revision progress.</p><label>Display name</label><input id="newLearnerName" maxlength="24" placeholder="Display name"><label>Avatar</label><div class="avatar-picks">${["🎓","🚀","⭐","🦊","🐼","🦁"].map((a,i)=>`<button class="avatar-pick ${i?"":"selected"}" data-avatar="${a}" onclick="pickAccountAvatar(this)">${a}</button>`).join("")}</div><input id="newLearnerAvatar" type="hidden" value="🎓"><button class="primary" onclick="createLearnerFromWelcome()">CREATE PROFILE</button><small>V0.11A.20.1 beta · stored on this device only</small></div></div>`}
 function pickAccountAvatar(b){document.querySelectorAll(".avatar-pick").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");document.getElementById("newLearnerAvatar").value=b.dataset.avatar}
 function createLearnerFromWelcome(){let n=document.getElementById("newLearnerName").value.trim();if(!n){alert("Please enter a display name.");return}ensureLearner(n,document.getElementById("newLearnerAvatar").value);location.reload()}
 function showAccountWelcome(){let o=document.createElement("div");o.id="accountWelcome";o.className="account-overlay";o.innerHTML=accountWelcomeHTML();document.body.appendChild(o)}
 function switchLearner(id){if(!accounts.learners[id])return;accounts.active=id;saveAccounts(accounts);location.reload()}
 function addAnotherLearner(){closeOverlays();showAccountWelcome()}
-function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.18</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
+function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.20</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
 function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
 
 let state=load(),session=null;if(!Array.isArray(state.served))state.served=[];state.missions=state.missions||0;state.bossWins=state.bossWins||0;state.lastBoss=state.lastBoss||null;
@@ -59,28 +59,61 @@ const SHOP_ITEMS=[
 {id:"title_none",type:"title",name:"No Title",icon:"—",price:0,rarity:"Common"},
 {id:"title_scholar",type:"title",name:"Rising Scholar",icon:"📚",price:350,rarity:"Rare"},
 {id:"title_boss",type:"title",name:"Boss Slayer",icon:"👑",price:750,rarity:"Epic"},
-{id:"title_master",type:"title",name:"GCSE Master",icon:"🏆",price:1250,rarity:"Legendary"},
+{id:"title_master",type:"title",name:"GCSE Master",icon:"🏆",price:1000,rarity:"Legendary"},
 {id:"theme_default",type:"theme",name:"Classic",icon:"✨",price:0,rarity:"Common"},
 {id:"theme_space",type:"theme",name:"Space",icon:"🌠",price:1000,rarity:"Epic"},
 {id:"theme_arcade",type:"theme",name:"Arcade",icon:"🕹️",price:1500,rarity:"Legendary"},
 {id:"avatar_robot",type:"avatar",name:"Cyber Bot",icon:"🤖",price:650,rarity:"Rare",animated:true},
 {id:"avatar_alien",type:"avatar",name:"Alien",icon:"👽",price:900,rarity:"Epic",animated:true},
 {id:"avatar_wizard",type:"avatar",name:"Wizard",icon:"🧙",price:1400,rarity:"Epic",animated:true},
-{id:"avatar_phoenix",type:"avatar",name:"Phoenix",icon:"🔥",price:2500,rarity:"Legendary",animated:true},
-{id:"avatar_crown",type:"avatar",name:"Royal Crown",icon:"👑",price:3500,rarity:"Legendary",animated:true},
+{id:"avatar_phoenix",type:"avatar",name:"Phoenix",icon:"🔥",price:1800,rarity:"Legendary",animated:true},
+{id:"avatar_crown",type:"avatar",name:"Royal Crown",icon:"👑",price:2500,rarity:"Legendary",animated:true},
 {id:"avatar_cosmic",type:"avatar",name:"Cosmic Mind",icon:"🧠",price:10000,rarity:"Ultra Rare",animated:true},
 {id:"avatar_blackhole",type:"avatar",name:"Black Hole",icon:"🕳️",price:10000,rarity:"Ultra Rare",animated:true},
 {id:"frame_rainbow",type:"frame",name:"Rainbow Rush",icon:"🌈",price:1800,rarity:"Epic"},
-{id:"frame_ice",type:"frame",name:"Frozen Aura",icon:"❄️",price:2500,rarity:"Legendary"},
-{id:"frame_crown",type:"frame",name:"Royal Halo",icon:"👑",price:4000,rarity:"Legendary"},
+{id:"frame_ice",type:"frame",name:"Frozen Aura",icon:"❄️",price:1800,rarity:"Legendary"},
+{id:"frame_crown",type:"frame",name:"Royal Halo",icon:"👑",price:2800,rarity:"Legendary"},
 {id:"frame_cosmic",type:"frame",name:"Cosmic Storm",icon:"☄️",price:10000,rarity:"Ultra Rare"},
 {id:"frame_diamond",type:"frame",name:"Diamond Energy",icon:"💎",price:10000,rarity:"Ultra Rare"},
-{id:"title_legend",type:"title",name:"Living Legend",icon:"🌟",price:3000,rarity:"Legendary"},
+{id:"title_legend",type:"title",name:"Living Legend",icon:"🌟",price:2200,rarity:"Legendary"},
 {id:"title_elite",type:"title",name:"Elite Scholar",icon:"💎",price:10000,rarity:"Ultra Rare"},
-{id:"theme_ocean",type:"theme",name:"Deep Ocean",icon:"🌊",price:2500,rarity:"Legendary"},
-{id:"theme_fire",type:"theme",name:"Inferno",icon:"🔥",price:3500,rarity:"Legendary"},
+{id:"theme_ocean",type:"theme",name:"Deep Ocean",icon:"🌊",price:1800,rarity:"Legendary"},
+{id:"theme_fire",type:"theme",name:"Inferno",icon:"🔥",price:2500,rarity:"Legendary"},
 {id:"theme_cosmic",type:"theme",name:"Cosmic Ultra",icon:"🪐",price:10000,rarity:"Ultra Rare"},
-{id:"theme_diamond",type:"theme",name:"Diamond Ultra",icon:"💎",price:10000,rarity:"Ultra Rare"}
+{id:"theme_diamond",type:"theme",name:"Diamond Ultra",icon:"💎",price:10000,rarity:"Ultra Rare"},
+{id:"avatar_ninja",type:"avatar",name:"Shadow Ninja",icon:"🥷",price:1800,rarity:"Epic",animated:true},
+{id:"avatar_astronaut",type:"avatar",name:"Astronaut",icon:"🧑‍🚀",price:2200,rarity:"Legendary",animated:true},
+{id:"avatar_genie",type:"avatar",name:"Mystic Genie",icon:"🧞",price:3500,rarity:"Legendary",animated:true},
+{id:"avatar_star",type:"avatar",name:"Supernova Star",icon:"🌟",price:10000,rarity:"Ultra Rare",animated:true},
+{id:"avatar_crystal",type:"avatar",name:"Crystal Guardian",icon:"🔮",price:10000,rarity:"Ultra Rare",animated:true},
+{id:"frame_laser",type:"frame",name:"Laser Grid",icon:"🔷",price:2200,rarity:"Legendary"},
+{id:"frame_aurora",type:"frame",name:"Aurora",icon:"🌌",price:3500,rarity:"Legendary"},
+{id:"frame_supernova",type:"frame",name:"Supernova",icon:"🌟",price:10000,rarity:"Ultra Rare"},
+{id:"frame_void",type:"frame",name:"Void Energy",icon:"🌀",price:10000,rarity:"Ultra Rare"},
+{id:"title_champion",type:"title",name:"Revision Champion",icon:"🏅",price:2500,rarity:"Legendary"},
+{id:"title_cosmic",type:"title",name:"Cosmic Scholar",icon:"🪐",price:10000,rarity:"Ultra Rare"},
+{id:"theme_forest",type:"theme",name:"Enchanted Forest",icon:"🌲",price:2800,rarity:"Legendary"},
+{id:"theme_sunset",type:"theme",name:"Synthwave Sunset",icon:"🌅",price:4000,rarity:"Legendary"},
+{id:"theme_aurora",type:"theme",name:"Aurora Ultra",icon:"🌌",price:10000,rarity:"Ultra Rare"},
+{id:"theme_void",type:"theme",name:"Void Ultra",icon:"🌀",price:10000,rarity:"Ultra Rare"},
+{id:"avatar_cat",type:"avatar",name:"Cool Cat",icon:"😺",price:400,rarity:"Rare",animated:true},
+{id:"avatar_gamer",type:"avatar",name:"Gamer",icon:"🎮",price:800,rarity:"Rare",animated:true},
+{id:"avatar_detective",type:"avatar",name:"Detective",icon:"🕵️",price:1200,rarity:"Epic",animated:true},
+{id:"avatar_knight",type:"avatar",name:"Knight",icon:"🛡️",price:1600,rarity:"Epic",animated:true},
+{id:"avatar_hero",type:"avatar",name:"Super Hero",icon:"🦸",price:2200,rarity:"Legendary",animated:true},
+{id:"avatar_scientist",type:"avatar",name:"Mad Scientist",icon:"🧑‍🔬",price:2800,rarity:"Legendary",animated:true},
+{id:"frame_spark",type:"frame",name:"Spark",icon:"✨",price:450,rarity:"Rare"},
+{id:"frame_electric",type:"frame",name:"Electric Blue",icon:"⚡",price:900,rarity:"Rare"},
+{id:"frame_poison",type:"frame",name:"Toxic Glow",icon:"☢️",price:1400,rarity:"Epic"},
+{id:"frame_sun",type:"frame",name:"Solar Flare",icon:"☀️",price:2000,rarity:"Epic"},
+{id:"frame_magic",type:"frame",name:"Magic Aura",icon:"🔮",price:3000,rarity:"Legendary"},
+{id:"title_rising",type:"title",name:"Rising Star",icon:"⭐",price:500,rarity:"Rare"},
+{id:"title_brain",type:"title",name:"Brainiac",icon:"🧠",price:900,rarity:"Rare"},
+{id:"title_streak",type:"title",name:"Streak Hero",icon:"🔥",price:1400,rarity:"Epic"},
+{id:"title_ace",type:"title",name:"Revision Ace",icon:"🎯",price:2000,rarity:"Epic"},
+{id:"theme_candy",type:"theme",name:"Candy Pop",icon:"🍬",price:1200,rarity:"Epic"},
+{id:"theme_mint",type:"theme",name:"Mint Fresh",icon:"🍃",price:1800,rarity:"Epic"},
+{id:"theme_gold",type:"theme",name:"Golden Glow",icon:"🏆",price:3000,rarity:"Legendary"}
 ];
 const ACHIEVEMENTS=[
 {id:"streak",name:"Streak Master",icon:"🔥",levels:[3,7,30,100],labels:["Bronze","Silver","Gold","Diamond"],reward:[50,100,250,500],value:()=>state.streak||0,unit:"days"},
@@ -93,7 +126,7 @@ function currentAchLevel(a){let v=a.value(),n=0;while(n<a.levels.length&&v>=a.le
 function syncAchievements(showToast=false){let gained=0;for(const a of ACHIEVEMENTS){let now=currentAchLevel(a),was=state.achievementLevels[a.id]||0;if(now>was){for(let i=was;i<now;i++)gained+=a.reward[i]||0;state.achievementLevels[a.id]=now}}if(gained){state.coins+=gained;if(showToast)setTimeout(()=>alert(`🏆 Achievement level up! +${gained} Boost Coins`),80)}return gained}
 function missionCoinReward(){let d=new Date().toISOString().slice(0,10);if(state.dailyCoins.date!==d)state.dailyCoins={date:d,missions:0};let rewards=[100,75,50],n=state.dailyCoins.missions++,r=rewards[n]??25;return r}
 function equippedItem(type){return SHOP_ITEMS.find(x=>x.id===state.equipped[type])||SHOP_ITEMS.find(x=>x.type===type&&x.price===0)}
-function applyAppTheme(){let id=equippedItem("theme")?.id||"theme_default";document.body.classList.remove("app-theme-space","app-theme-arcade","app-theme-ocean","app-theme-fire","app-theme-cosmic","app-theme-diamond");if(id==="theme_space")document.body.classList.add("app-theme-space");if(id==="theme_arcade")document.body.classList.add("app-theme-arcade");if(id==="theme_ocean")document.body.classList.add("app-theme-ocean");if(id==="theme_fire")document.body.classList.add("app-theme-fire");if(id==="theme_cosmic")document.body.classList.add("app-theme-cosmic");if(id==="theme_diamond")document.body.classList.add("app-theme-diamond");document.documentElement.setAttribute("data-gcse-theme",id)}
+function applyAppTheme(){let id=equippedItem("theme")?.id||"theme_default";document.body.classList.remove("app-theme-space","app-theme-arcade","app-theme-ocean","app-theme-fire","app-theme-cosmic","app-theme-diamond","app-theme-forest","app-theme-sunset","app-theme-aurora","app-theme-void","app-theme-candy","app-theme-mint","app-theme-gold");if(id==="theme_space")document.body.classList.add("app-theme-space");if(id==="theme_arcade")document.body.classList.add("app-theme-arcade");if(id==="theme_ocean")document.body.classList.add("app-theme-ocean");if(id==="theme_fire")document.body.classList.add("app-theme-fire");if(id==="theme_cosmic")document.body.classList.add("app-theme-cosmic");if(id==="theme_diamond")document.body.classList.add("app-theme-diamond");if(id==="theme_forest")document.body.classList.add("app-theme-forest");if(id==="theme_sunset")document.body.classList.add("app-theme-sunset");if(id==="theme_aurora")document.body.classList.add("app-theme-aurora");if(id==="theme_void")document.body.classList.add("app-theme-void");if(id==="theme_candy")document.body.classList.add("app-theme-candy");if(id==="theme_mint")document.body.classList.add("app-theme-mint");if(id==="theme_gold")document.body.classList.add("app-theme-gold");document.documentElement.setAttribute("data-gcse-theme",id)}
 
 function displayAvatar(){return equippedItem("avatar")?.icon||learnerAvatar()}
 function avatarDecorHTML(big=false){let av=equippedItem("avatar"),fr=equippedItem("frame"),title=equippedItem("title"),fc=fr&&fr.id!=="frame_none"?" "+fr.id:"",anim=av?.animated?" avatar-animated":"";return `<div class="avatar-wrap${fc}${anim}"><span class="${big?"shop-avatar-big":"shop-avatar"}">${escapeHtml(av?.icon||learnerAvatar())}</span></div>${title&&title.id!=="title_none"?`<span class="equipped-title">${escapeHtml(title.name)}</span>`:""}`}
