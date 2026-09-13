@@ -161,3 +161,41 @@ body.app-theme-gold .app-overlay{background:linear-gradient(145deg,#fff4b8,#e9b9
 .shop-v2-item button{margin-top:auto;width:100%;border:0;border-radius:9px;padding:8px;font-weight:900}.shop-buy{background:linear-gradient(135deg,#6b48ff,#8e3cff);color:#fff}.shop-owned{background:#173e65;color:#bfeaff}.shop-equipped{background:#1e6548;color:#d8ffea}.shop-v2-item button:disabled{opacity:.42}
 .tier-epic .shop-v2-item{background:#26113c;border-color:#9145b6}.tier-legendary .shop-v2-item{background:#29220e;border-color:#8f7620}.tier-ultra-rare .shop-v2-item{background:linear-gradient(150deg,#17132f,#102d3d);border-color:#9a70ff;box-shadow:0 0 12px rgba(113,70,255,.2)}
 @media(max-width:700px){.shop-v2-header{grid-template-columns:auto 1fr auto;padding:12px 10px;gap:8px}.shop-v2-brand b{font-size:19px}.shop-v2-brand span{font-size:11px}.shop-v2-home{padding:9px 11px}.shop-v2-balance{padding:9px 10px;font-size:14px}.shop-v2-tabs{justify-content:flex-start;overflow-x:auto}.shop-v2-tabs button{padding:9px 13px;white-space:nowrap}.shop-v2-layout{display:block;padding:10px}.shop-v2-side{display:none}.shop-v2-title{padding:13px}.shop-v2-title b{font-size:20px}.shop-v2-title small{font-size:11px}.shop-v2-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.shop-v2-item{min-height:176px}.shop-v2-tier{padding:9px}.shop-v2-preview{padding:9px 12px}}
+
+/* V0.11A.22 — Home top stats themed correctly */
+body.app-theme-space .stats>div,
+body.app-theme-arcade .stats>div,
+body.app-theme-ocean .stats>div,
+body.app-theme-fire .stats>div,
+body.app-theme-cosmic .stats>div,
+body.app-theme-forest .stats>div,
+body.app-theme-sunset .stats>div,
+body.app-theme-aurora .stats>div,
+body.app-theme-void .stats>div{
+  background:rgba(8,14,38,.82)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 7px 20px rgba(0,0,0,.24)!important;
+}
+body.app-theme-diamond .stats>div,
+body.app-theme-candy .stats>div,
+body.app-theme-mint .stats>div,
+body.app-theme-gold .stats>div{
+  background:rgba(255,255,255,.76)!important;
+  color:inherit!important;
+  border:1px solid rgba(255,255,255,.6)!important;
+  box-shadow:0 7px 20px rgba(0,0,0,.12)!important;
+}
+body[class*="app-theme-"] .stats>div b,
+body[class*="app-theme-"] .stats>div strong,
+body[class*="app-theme-"] .stats>div span,
+body[class*="app-theme-"] .stats>div small{
+  color:inherit!important;
+}
+body[class*="app-theme-"] .stats{
+  gap:10px!important;
+}
+body[class*="app-theme-"] .stats>div{
+  min-width:0!important;
+  overflow:hidden;
+}

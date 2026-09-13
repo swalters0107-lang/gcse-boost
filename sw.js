@@ -1,5 +1,5 @@
-const CACHE="gcse-boost-v011a211-github";
-const ASSETS=["./","./index.html","./style.css?v=011a21","./app.js?v=011a21","./manifest.json","./icon-192.png","./icon-512.png"];
+const CACHE="gcse-boost-v011a221-github";
+const ASSETS=["./","./index.html","./style.css?v=011a22","./app.js?v=011a22","./manifest.json","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{
