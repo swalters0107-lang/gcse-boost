@@ -28,3 +28,5 @@
 .answer-locked,.answer-locked:disabled{opacity:.55;cursor:not-allowed;background:#e5e7eb!important;color:#6b7280!important}
 input.answer-locked:disabled,textarea.answer-locked:disabled,select.answer-locked:disabled{background:#e5e7eb!important;border-color:#c7cbd1!important;color:#6b7280!important;-webkit-text-fill-color:#6b7280}
 .check-locked:disabled{opacity:.45!important;cursor:not-allowed!important;background:#9ca3af!important}
+
+.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.category-choice{min-height:58px;border-radius:14px;padding:12px;font-weight:800}.category-all{grid-column:1/-1}.grade-list{display:grid;gap:8px}.grade-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(128,128,128,.18)}.grade-row>div{text-align:right}.grade-row b{display:block;font-size:1.1rem}.grade-row small{display:block;max-width:210px;opacity:.7;margin-top:2px}@media(max-width:520px){.category-grid{grid-template-columns:1fr}.category-all{grid-column:auto}}
