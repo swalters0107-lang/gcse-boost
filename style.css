@@ -199,3 +199,43 @@ body[class*="app-theme-"] .stats>div{
   min-width:0!important;
   overflow:hidden;
 }
+
+/* V0.11A.23 — compact mobile home stats */
+@media(max-width:700px){
+  #home .stats{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:7px!important;
+    align-items:stretch!important;
+  }
+  #home .stats>div{
+    min-height:104px!important;
+    height:104px!important;
+    padding:10px 4px!important;
+    border-radius:20px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+    line-height:1.05!important;
+  }
+  #home .stats>div>*{margin-left:auto!important;margin-right:auto!important}
+  #home .stats>div b,#home .stats>div strong{
+    font-size:19px!important;
+    line-height:1.05!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+  }
+  #home .stats>div span,#home .stats>div small{
+    font-size:13px!important;
+    line-height:1.1!important;
+  }
+  #home .stats>div:first-child,
+  #home .stats>div:nth-child(2),
+  #home .stats>div:nth-child(3),
+  #home .stats>div:nth-child(4){
+    overflow:visible!important;
+  }
+}
