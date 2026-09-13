@@ -1,9 +1,10 @@
-# GCSE Boost V0.11A.25 — RE Subject Registration Fix
+# GCSE Boost V0.11A.26 — RE & History Content Expansion
 
-This completes the first-time addition of Pearson Edexcel RE.
-- RE now has its own Home subject tile
-- RE opens the category/course picker
-- RE is included in progress reporting
-- RE is included in estimated grades
-- RE question bank and selectable RE/History course options from V0.11A.24 retained
-- all shop, themes, coins, profiles and mobile formatting retained
+Built from stable V0.11A.25.
+
+- Expanded Pearson Edexcel RE across all selectable religion/ethics areas.
+- Expanded Pearson Edexcel History across all 17 selectable option areas.
+- Grade 4–7 progression metadata added.
+- Existing selectable-course filtering retained per learner.
+- Existing shop, themes, coins, profiles, RE Home tile and mobile UI retained.
+- Added 252 new curated question records in this expansion.
