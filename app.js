@@ -185,7 +185,25 @@ function shopHTML(){
 function showShop(){openOverlay("shopOverlay",shopHTML())}
 function achievementHTML(){return ACHIEVEMENTS.map(a=>{let v=a.value(),lvl=currentAchLevel(a),idx=Math.min(lvl,a.levels.length-1),done=lvl>=a.levels.length,target=done?a.levels.at(-1):a.levels[lvl],prev=lvl? a.levels[lvl-1]:0,pc=done?100:Math.max(0,Math.min(100,Math.round((v-prev)*100/(target-prev)))),label=done?"Diamond":lvl?a.labels[lvl-1]:"Starting";return `<div class="achievement-progress"><div class="achievement-head"><span>${a.icon} <b>${a.name}</b></span><strong>${label}</strong></div><div class="achievement-bar"><i style="width:${pc}%"></i></div><small>${v}${a.unit==="%"?"%":" "+a.unit} · ${done?"Maximum level":`${Math.max(0,target-v)} to ${a.labels[lvl]}`}</small></div>`}).join("")}
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){};try{window.gcseCloudQueueSave?.()}catch(e){}}
+
+// V0.11B.2 cloud bridge. Cloud auth stays in a separate module; the learning engine
+// only exposes a safe snapshot/restore boundary.
+window.gcseBoostGetState=()=>JSON.parse(JSON.stringify(state));
+window.gcseBoostGetLearner=()=>{const l=activeLearner();return l?JSON.parse(JSON.stringify(l)):null};
+window.gcseBoostApplyCloudState=(cloudState,scalars={})=>{
+  const incoming=(cloudState&&typeof cloudState==="object")?cloudState:{};
+  state=Object.assign(fresh(),incoming);
+  if(scalars.xp!=null)state.xp=Number(scalars.xp)||0;
+  if(scalars.coins!=null)state.coins=Number(scalars.coins)||0;
+  if(scalars.streak!=null)state.streak=Number(scalars.streak)||0;
+  if(scalars.lives!=null)state.lives=Number.isFinite(Number(scalars.lives))?Number(scalars.lives):3;
+  if(scalars.missions!=null)state.missions=Number(scalars.missions)||0;
+  if(scalars.boss_wins!=null)state.bossWins=Number(scalars.boss_wins)||0;
+  state.schoolSchedule=state.schoolSchedule||{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]};
+  try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+  try{home()}catch(e){}
+};
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));$(id)?.classList.remove("hidden")}
 const SCHOOL_DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
 const SCHOOL_SUBJECTS=["Maths","English","Science","History","Geography","German","Spanish","Drama","Citizenship","Sport Science","Catering","RE"];
