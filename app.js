@@ -535,4 +535,22 @@ window.gcseBoostConfigureCloudLearner=function({userId,name,avatar}={}){
   try{home()}catch(e){}
   return cloudLearnerId;
 };
+
+// V0.11B.4.1 — apply cloud identity without resetting learning progress.
+window.gcseBoostApplyCloudProfileIdentity=function({userId,name,avatar}={}){
+  const safeName=String(name||"Learner").trim().slice(0,24)||"Learner";
+  const allowed=["🎓","🚀","⭐","🦊","🐼","🦁","🐯","🦄","⚡"];
+  const safeAvatar=allowed.includes(avatar)?avatar:(state?.profile?.avatar||"🎓");
+  const hex=String(userId||"").replace(/[^a-f0-9]/gi,"").toUpperCase();
+  const cloudLearnerId=hex.length>=8?`L-${hex.slice(0,4)}-${hex.slice(4,8)}`:(state?.profile?.cloudLearnerId||makeLearnerId());
+  state.profile={...(state.profile||{}),name:safeName,avatar:safeAvatar,cloudLearnerId};
+  if(activeLearner()){
+    accounts.learners[accounts.active]={...accounts.learners[accounts.active],name:safeName,avatar:safeAvatar,cloudLearnerId};
+    saveAccounts(accounts);
+  }
+  try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+  try{home()}catch(e){}
+  return cloudLearnerId;
+};
+
 window.gcseBoostCloudLearnerId=function(){return state?.profile?.cloudLearnerId||activeLearner()?.cloudLearnerId||activeLearner()?.id||"—"};
