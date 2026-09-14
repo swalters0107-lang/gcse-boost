@@ -67,6 +67,99 @@ function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
  BANK.push(...rows);
 })();
 
+
+// V0.12.5 — rebuilt Pearson Edexcel Ratio, Proportion & Rates of Change strand.
+(function rebuildRatioV0125(){
+ const legacyTopics=new Set(["Percentages","Ratio","Proportion","Rates of change"]);
+ for(let i=BANK.length-1;i>=0;i--){const q=BANK[i];if(q.subject==="Maths"&&legacyTopics.has(q.topic))BANK.splice(i,1);}
+ const rows=[];
+ const add=(skill,grade,tier,type,q,answer,why,pattern,choices,correct)=>{const x={subject:"Maths",strand:"Ratio, Proportion & Rates of Change",topic:skill,skill,grade,type,q,why,difficulty:grade,tier,pattern};if(type==="mcq"){x.a=choices;x.correct=correct}else{x.answer=String(answer)}rows.push(x)};
+ const skills=["Units & conversions","Ratio notation & sharing","Fractions and ratio","Percentages & percentage change","Direct proportion","Inverse proportion","Compound measures","Scale factors & similarity","Growth & decay","Rates of change"];
+ for(let i=0;i<24;i++){
+  // 1 Units & conversions — 20 Foundation, 4 Higher
+  {let k=i%6, n=2+i;
+   if(k===0)add(skills[0],2,"Foundation","typed",`Convert ${n} m to cm.`,n*100,"1 metre = 100 centimetres.","metric-length");
+   if(k===1)add(skills[0],3,"Foundation","typed",`Convert ${n*250} g to kg.`,(n*.25).toString(),"1000 g = 1 kg.","metric-mass");
+   if(k===2)add(skills[0],3,"Foundation","typed",`Convert ${n*300} ml to litres.`,(n*.3).toString(),"1000 ml = 1 litre.","metric-capacity");
+   if(k===3)add(skills[0],4,"Foundation","typed",`A journey is ${n}.5 km. How many metres is this?`,(n+.5)*1000,"Multiply kilometres by 1000.","mixed-unit-context");
+   if(k===4)add(skills[0],5,"Foundation","typed",`Convert ${(n/10).toFixed(1)} m² to cm².`,Math.round(n/10*10000),"For area, square the linear conversion: 1 m² = 10,000 cm².","area-conversion");
+   if(k===5)add(skills[0],6,"Higher","typed",`Convert ${(n/10).toFixed(1)} m³ to cm³.`,Math.round(n/10*1000000),"For volume, cube the linear conversion: 1 m³ = 1,000,000 cm³.","volume-conversion");}
+  // 2 Ratio notation & sharing
+  {let a=2+i%5,b=3+(i*2)%6,m=2+i%4,total=(a+b)*m;
+   if(i%6===0)add(skills[1],2,"Foundation","typed",`Simplify the ratio ${a*3}:${b*3}.`,`${a}:${b}`,"Divide both parts by their common factor.","simplify-ratio");
+   else if(i%6===1)add(skills[1],3,"Foundation","typed",`Share £${total} in the ratio ${a}:${b}. Enter the smaller share.`,Math.min(a,b)*m,"Add the ratio parts, find one part, then multiply.","share-ratio");
+   else if(i%6===2)add(skills[1],3,"Foundation","typed",`The ratio of red to blue counters is ${a}:${b}. There are ${a*m} red counters. How many blue counters are there?`,b*m,"Use the scale factor from the known ratio part.","missing-ratio-value");
+   else if(i%6===3)add(skills[1],4,"Foundation","typed",`A recipe uses flour and sugar in the ratio ${a}:${b}. If ${b*m*10} g of sugar is used, how many grams of flour are needed?`,a*m*10,"Scale both parts of the ratio equally.","ratio-recipe");
+   else if(i%6===4)add(skills[1],5,"Foundation","typed",`£${(a+b+2)*m*5} is shared in the ratio ${a}:${b}:2. How much does the final person receive?`,2*m*5,"Find the value of one ratio part, then multiply by 2.","three-part-ratio");
+   else add(skills[1],6,"Higher","mcq",`Which ratio is equivalent to ${a}:${b}?`,null,"Equivalent ratios multiply both parts by the same factor.","ratio-reasoning",[`${a*4}:${b*4}`,`${a+4}:${b+4}`,`${a*4}:${b}`,`${a}:${b*4}`],0);}
+  // 3 Fractions and ratio
+  {let d=4+i%5,num=1+i%(d-1),scale=2+i%5;
+   if(i%6===0)add(skills[2],3,"Foundation","typed",`${num}/${d} of a group are girls. What is the ratio girls : total?`,`${num}:${d}`,"A fraction numerator compares the selected part with the whole.","fraction-to-ratio");
+   else if(i%6===1)add(skills[2],3,"Foundation","typed",`In a class, the ratio boys:girls is ${num}:${d}. What fraction of the class are boys?`,`${num}/${num+d}`,"The whole is the sum of the ratio parts.","ratio-to-fraction");
+   else if(i%6===2)add(skills[2],4,"Foundation","typed",`${num}/${d} of ${d*scale*3} pupils choose option A. How many pupils is this?`,num*scale*3,"Multiply the total by the fraction.","fraction-of-amount");
+   else if(i%6===3)add(skills[2],4,"Foundation","mcq",`Which is larger: ${num}/${d} or the ratio part ${num}:${d}?`,null,"A ratio part a:b represents a/(a+b) of the whole, not a/b.","fraction-ratio-reasoning",[`${num}/${d}`,`${num}:${d} as a fraction of the whole`,`They are always equal`,`Cannot compare`],0);
+   else if(i%6===4)add(skills[2],5,"Foundation","typed",`A drink is concentrate:water = ${num}:${d}. What fraction of the drink is concentrate?`,`${num}/${num+d}`,"Divide the concentrate parts by all ratio parts.","ratio-fraction-context");
+   else add(skills[2],6,"Higher","typed",`The ratio a:b is ${num}:${d}. If a is ${num*scale}, find b.`,d*scale,"Use the common multiplier between corresponding ratio parts.","ratio-algebra-link");}
+  // 4 Percentages
+  {let pct=[5,10,15,20,25,30][i%6], base=80+(i%5)*20;
+   if(i%6===0)add(skills[3],2,"Foundation","typed",`Find ${pct}% of £${base}.`,base*pct/100,"Convert the percentage to a multiplier or use 10% and 5% facts.","percentage-of-amount");
+   else if(i%6===1)add(skills[3],3,"Foundation","typed",`Increase £${base} by ${pct}%.`,base*(1+pct/100),"An increase uses multiplier 1 + percentage as a decimal.","percentage-increase");
+   else if(i%6===2)add(skills[3],3,"Foundation","typed",`Decrease £${base} by ${pct}%.`,base*(1-pct/100),"A decrease uses multiplier 1 - percentage as a decimal.","percentage-decrease");
+   else if(i%6===3)add(skills[3],4,"Foundation","typed",`A price rises from £${base} to £${base+20}. What is the percentage increase?`,(20/base*100).toFixed(2).replace(/\.00$/,''),"Percentage change = change ÷ original × 100.","percentage-change");
+   else if(i%6===4)add(skills[3],5,"Foundation","typed",`After a ${pct}% discount an item costs £${(base*(1-pct/100)).toFixed(2)}. What was the original price?`,base,"Divide by the remaining percentage multiplier.","reverse-percentage");
+   else add(skills[3],6,"Higher","typed",`A value increases by ${pct}% then decreases by ${pct}%. Starting at ${base}, find the final value.`,(base*(1+pct/100)*(1-pct/100)).toFixed(2).replace(/\.00$/,''),"Successive percentage changes use successive multipliers.","successive-percentage-change");}
+  // 5 Direct proportion
+  {let x=2+i%5,c=3+i%4;
+   if(i%6===0)add(skills[4],3,"Foundation","typed",`y is directly proportional to x. If y=${c*x} when x=${x}, find y when x=${x+2}.`,c*(x+2),"For direct proportion y=kx; first find k.","direct-proportion-table");
+   else if(i%6===1)add(skills[4],4,"Foundation","typed",`${x} notebooks cost £${(x*c).toFixed(2)}. What do ${x+3} notebooks cost?`,((x+3)*c).toFixed(2),"Find the unit cost, then scale up.","unitary-method");
+   else if(i%6===2)add(skills[4],4,"Foundation","typed",`A car travels ${x*c*10} km in ${x} hours at constant speed. How far in ${x+1} hours?`,(x+1)*c*10,"At constant speed, distance is directly proportional to time.","direct-context");
+   else if(i%6===3)add(skills[4],5,"Foundation","typed",`y ∝ x and y=${c*x} when x=${x}. Find the constant of proportionality k.`,c,"For y=kx, divide y by x.","find-direct-k");
+   else if(i%6===4)add(skills[4],6,"Higher","typed",`y ∝ x². If y=${c*x*x} when x=${x}, find y when x=${x+1}.`,c*(x+1)*(x+1),"For y=kx², find k then substitute the new x.","direct-square");
+   else add(skills[4],7,"Higher","typed",`y ∝ √x. If y=${c*2} when x=4, find y when x=9.`,c*3,"Use y=k√x and determine k from the first pair.","direct-root");}
+  // 6 Inverse proportion
+  {let x=2+i%5,k=60+(i%4)*12;
+   if(i%6===0)add(skills[5],4,"Foundation","typed",`y is inversely proportional to x. If xy=${k}, find y when x=${x}.`,k/x,"For inverse proportion y=k/x, so xy=k.","inverse-basic");
+   else if(i%6===1)add(skills[5],5,"Foundation","typed",`${x} workers take ${k/x} hours for a job. Assuming inverse proportion, how long would ${x*2} workers take?`,k/(x*2),"Workers × time stays constant in this model.","workers-time");
+   else if(i%6===2)add(skills[5],5,"Foundation","typed",`For a fixed journey, speed × time = ${k}. Find the time when speed is ${x*3}.`,k/(x*3),"For fixed distance, time is inversely proportional to speed.","speed-time-inverse");
+   else if(i%6===3)add(skills[5],6,"Higher","typed",`y ∝ 1/x. If y=${k/x} when x=${x}, find k.`,k,"Multiply x and y to find the inverse constant.","find-inverse-k");
+   else if(i%6===4)add(skills[5],7,"Higher","typed",`y ∝ 1/x² and y=${k/(x*x)} when x=${x}. Find y when x=${x*2}.`,k/((x*2)*(x*2)),"Use y=k/x²; doubling x divides y by four.","inverse-square");
+   else add(skills[5],7,"Higher","mcq",`If y is inversely proportional to x and x triples, what happens to y?`,null,"For y=k/x, multiplying x by 3 divides y by 3.","inverse-reasoning",["It is divided by 3","It triples","It is divided by 9","It stays the same"],0);}
+  // 7 Compound measures
+  {let speed=30+(i%5)*10,time=2+i%4;
+   if(i%6===0)add(skills[6],3,"Foundation","typed",`A car travels ${speed*time} km in ${time} hours. Find its average speed in km/h.`,speed,"Speed = distance ÷ time.","speed");
+   else if(i%6===1)add(skills[6],4,"Foundation","typed",`A block has mass ${120+i*10} g and volume ${30+i%5*5} cm³. Find density in g/cm³.`,((120+i*10)/(30+i%5*5)).toFixed(2).replace(/\.00$/,''),"Density = mass ÷ volume.","density");
+   else if(i%6===2)add(skills[6],4,"Foundation","typed",`A force of ${200+i*10} N acts over ${10+i%5} m². Find pressure in N/m².`,((200+i*10)/(10+i%5)).toFixed(2).replace(/\.00$/,''),"Pressure = force ÷ area.","pressure");
+   else if(i%6===3)add(skills[6],5,"Foundation","typed",`A runner travels ${speed/10} km at ${speed/5} km/h. How many hours does this take?`,(speed/10)/(speed/5),"Time = distance ÷ speed.","compound-rearrange");
+   else if(i%6===4)add(skills[6],6,"Higher","typed",`Convert ${speed} km/h to m/s. Give your answer to 2 d.p.`,(speed/3.6).toFixed(2),"To convert km/h to m/s, divide by 3.6.","speed-unit-conversion");
+   else add(skills[6],7,"Higher","typed",`A ${1200+i*20} kg car occupies ${1.5+(i%3)*.5} m³. Find its average density in kg/m³.`,((1200+i*20)/(1.5+(i%3)*.5)).toFixed(2).replace(/\.00$/,''),"Density = mass ÷ volume; keep units consistent.","density-context");}
+  // 8 Scale factors & similarity
+  {let sf=2+i%4,a=3+i%5;
+   if(i%6===0)add(skills[7],3,"Foundation","typed",`A shape is enlarged by scale factor ${sf}. A side of ${a} cm becomes how long?`,a*sf,"Multiply lengths by the linear scale factor.","linear-scale-factor");
+   else if(i%6===1)add(skills[7],4,"Foundation","typed",`Two similar shapes have corresponding sides ${a} cm and ${a*sf} cm. Find the scale factor from small to large.`,sf,"Scale factor = new length ÷ original length.","find-scale-factor");
+   else if(i%6===2)add(skills[7],4,"Foundation","typed",`On a 1:${sf*1000} map, ${a} cm represents how many metres?`,a*sf*10,"Use the map scale then convert centimetres to metres.","map-scale");
+   else if(i%6===3)add(skills[7],5,"Foundation","typed",`Similar rectangles have scale factor ${sf}. The smaller width is ${a} cm. Find the larger width.`,a*sf,"Corresponding lengths use the same linear scale factor.","similar-length");
+   else if(i%6===4)add(skills[7],6,"Higher","typed",`Similar shapes have linear scale factor ${sf}. The smaller area is ${a*2} cm². Find the larger area.`,a*2*sf*sf,"Areas scale by the square of the linear scale factor.","area-scale-factor");
+   else add(skills[7],7,"Higher","typed",`Similar solids have linear scale factor ${sf}. The smaller volume is ${a} cm³. Find the larger volume.`,a*sf*sf*sf,"Volumes scale by the cube of the linear scale factor.","volume-scale-factor");}
+  // 9 Growth & decay
+  {let rate=5+(i%5)*5,start=100+(i%4)*50;
+   if(i%6===0)add(skills[8],4,"Foundation","typed",`£${start} earns ${rate}% simple growth for one year. Find the new amount.`,start*(1+rate/100),"For one period, multiply by 1 + rate as a decimal.","one-period-growth");
+   else if(i%6===1)add(skills[8],4,"Foundation","typed",`A value of ${start} decreases by ${rate}%. Find the new value.`,start*(1-rate/100),"Use the decay multiplier 1 - rate as a decimal.","one-period-decay");
+   else if(i%6===2)add(skills[8],5,"Foundation","typed",`£${start} grows by ${rate}% per year for 2 years. Find the final amount.`,(start*Math.pow(1+rate/100,2)).toFixed(2),"Compound growth applies the multiplier once per year.","compound-growth-two");
+   else if(i%6===3)add(skills[8],5,"Foundation","typed",`A machine worth £${start*10} loses ${rate}% of its value in one year. Find its value after one year.`,start*10*(1-rate/100),"Depreciation is percentage decay.","depreciation");
+   else if(i%6===4)add(skills[8],6,"Higher","typed",`A population starts at ${start*10} and grows by ${rate}% each year. Find it after 3 years to the nearest whole number.`,Math.round(start*10*Math.pow(1+rate/100,3)),"Use repeated multiplication by the growth multiplier.","compound-growth-three");
+   else add(skills[8],7,"Higher","typed",`A value is multiplied by ${(1-rate/100).toFixed(2)} each year. What percentage decay is this?`,rate,"A multiplier below 1 leaves (100-rate)% of the value.","multiplier-to-decay");}
+  // 10 Rates of change
+  {let t=2+i%5,d=20+(i%6)*10;
+   if(i%6===0)add(skills[9],3,"Foundation","typed",`Distance increases from 0 km to ${d} km in ${t} hours. Find the average rate of change in km/h.`,d/t,"Average rate of change = change in output ÷ change in input.","average-rate");
+   else if(i%6===1)add(skills[9],4,"Foundation","typed",`Temperature rises from ${10+i%5}°C to ${20+i%5}°C in ${t} hours. Find the average rise per hour.`,10/t,"Divide the total change by the time interval.","temperature-rate");
+   else if(i%6===2)add(skills[9],4,"Foundation","typed",`A tank fills from ${10+i} L to ${10+i+d} L in ${t} minutes. Find the average filling rate in L/min.`,d/t,"Rate = change in volume ÷ change in time.","filling-rate");
+   else if(i%6===3)add(skills[9],5,"Foundation","mcq",`On a distance-time graph, what does a steeper straight line mean?`,null,"Gradient represents speed on a distance-time graph.","graph-rate-meaning",["Greater speed","Lower speed","No movement","Negative distance"],0);
+   else if(i%6===4)add(skills[9],6,"Higher","typed",`For y=x², find the average rate of change from x=${t} to x=${t+2}.`,(((t+2)**2-t**2)/2),"Use change in y divided by change in x over the interval.","average-rate-function");
+   else add(skills[9],7,"Higher","mcq",`A curve is getting steeper as x increases. What does this indicate about its rate of change?`,null,"A steeper tangent means a larger instantaneous rate of change.","rate-curve-reasoning",["The rate is increasing","The rate is zero","The rate is constant","The rate must be negative"],0);}
+ }
+ BANK.push(...rows);
+})();
+
 const ACTIVE_SESSION_KEY="gcseBoostActiveMissionV011B31";
 function saveActiveSession(){
  try{if(session)localStorage.setItem(ACTIVE_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(ACTIVE_SESSION_KEY)}catch(e){}
