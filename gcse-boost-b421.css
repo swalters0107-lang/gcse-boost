@@ -252,3 +252,7 @@ body[class*="app-theme-"] .stats>div{
 .dragonCard{position:relative;overflow:hidden;border:2px solid #6f42c1;background:linear-gradient(145deg,#fff 0%,#f6f0ff 55%,#fff7df 100%);box-shadow:0 12px 30px rgba(70,36,120,.14)}
 .dragonCard:before{content:"";position:absolute;right:-45px;top:-55px;width:150px;height:150px;border-radius:50%;background:rgba(111,66,193,.08)}
 .dragon-mark{font-size:3.2rem;line-height:1;margin-bottom:.2rem}.dragonCard>small{font-weight:800;letter-spacing:.12em}.dragonCard h2{margin:.35rem 0}.dragon-rules{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:1rem 0;padding:.8rem;border-radius:14px;background:rgba(255,255,255,.75)}.dragon-rules span{font-size:.8rem;text-align:center}.dragon-rules strong{white-space:nowrap}
+
+/* V0.11B.5.3 home/profile layout */
+.profile-account-panel{margin:14px 0}.profile-account-panel .full-btn{margin-top:10px}.profile-account-panel .secondary{background:transparent;border:1px solid rgba(127,127,127,.25)}
+#dragonCard{margin-top:14px;margin-bottom:18px}

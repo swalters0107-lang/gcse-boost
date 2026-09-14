@@ -10,8 +10,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 
-<link rel="stylesheet" href="gcse-boost-b421.css?v=011b52">
-<link rel="stylesheet" href="cloud-auth.css?v=011b52">
+<link rel="stylesheet" href="gcse-boost-b421.css?v=011b53">
+<link rel="stylesheet" href="cloud-auth.css?v=011b53">
 </head>
 
 <body>
@@ -28,7 +28,7 @@
         <small>10 minutes a day</small>
     </div>
 
-    <small>V0.11B.5.2</small>
+    <small>V0.11B.5.3</small>
 </header>
 
 <div class="stats">
@@ -92,13 +92,15 @@
 
 </button>
 
-<button
-    class="account-home-btn"
-    onclick="showAccounts()">
-
-    ⚙️ Switch learner / Beta
-
-</button>
+<div id="dragonCard" class="card dragonCard hidden">
+    <div class="dragon-mark">🐉</div>
+    <small>RARE ENCOUNTER</small>
+    <h2>A Dragon has appeared!</h2>
+    <p>The timetable has been shattered. Questions can come from any of your subjects.</p>
+    <p id="dragonText"></p>
+    <div class="dragon-rules"><b>❤️ ❤️ ❤️</b><span>No repeats · No recovery round</span><strong>🪙 1,000</strong></div>
+    <button id="dragonBtn" class="primary">ENTER DRAGON BATTLE</button>
+</div>
 
 <div id="schoolTodayStrip"></div>
 
@@ -275,15 +277,7 @@
     class="ready hidden">
 </button>
 
-<div id="dragonCard" class="card dragonCard hidden">
-    <div class="dragon-mark">🐉</div>
-    <small>RARE ENCOUNTER</small>
-    <h2>A Dragon has appeared!</h2>
-    <p>The timetable has been shattered. Questions can come from any of your subjects.</p>
-    <p id="dragonText"></p>
-    <div class="dragon-rules"><b>❤️ ❤️ ❤️</b><span>No repeats · No recovery round</span><strong>🪙 1,000</strong></div>
-    <button id="dragonBtn" class="primary">ENTER DRAGON BATTLE</button>
-</div>
+
 
 <div class="card bossCard">
 
@@ -401,7 +395,7 @@
 </main>
 
 
-<script src="app.js?v=011b52"></script>
+<script src="app.js?v=011b53"></script>
 
 <script src="fix-v011a29.js?v=011a29"></script>
 
@@ -409,7 +403,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="cloud-auth.js?v=011b52"></script>
+<script src="cloud-auth.js?v=011b53"></script>
 
 </body>
 </html>
