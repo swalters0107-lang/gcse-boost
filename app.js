@@ -515,3 +515,24 @@ function goProgress(){session=null;showProgress()}
 function goProfile(){session=null;showProfile()}
 
 window.addEventListener("load",()=>{if(!activeLearner())showAccountWelcome()});
+
+// V0.11B.4 — Real Learner Accounts bridge.
+// A signed-in cloud learner starts with a clean learning state and keeps a stable
+// learner ID derived from the Supabase account UUID. Existing mission-resume logic is untouched.
+window.gcseBoostConfigureCloudLearner=function({userId,name,avatar}={}){
+  const clean=fresh();
+  const safeName=String(name||"Learner").trim().slice(0,24)||"Learner";
+  const allowed=["🎓","🚀","⭐","🦊","🐼","🦁","🐯","🦄","⚡"];
+  const safeAvatar=allowed.includes(avatar)?avatar:"🎓";
+  const hex=String(userId||"").replace(/[^a-f0-9]/gi,"").toUpperCase();
+  const cloudLearnerId=hex.length>=8?`L-${hex.slice(0,4)}-${hex.slice(4,8)}`:makeLearnerId();
+  Object.assign(state,clean,{profile:{name:safeName,avatar:safeAvatar,cloudLearnerId},schoolSchedule:{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]},courseSelections:{}});
+  if(activeLearner()){
+    accounts.learners[accounts.active]={...accounts.learners[accounts.active],name:safeName,avatar:safeAvatar,cloudLearnerId};
+    saveAccounts(accounts);
+  }
+  save();
+  try{home()}catch(e){}
+  return cloudLearnerId;
+};
+window.gcseBoostCloudLearnerId=function(){return state?.profile?.cloudLearnerId||activeLearner()?.cloudLearnerId||activeLearner()?.id||"—"};
