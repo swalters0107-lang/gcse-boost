@@ -551,7 +551,14 @@ window.gcseBoostConfigureCloudLearner=function({userId,name,avatar}={}){
   const cloudLearnerId=ensureCloudLocalLearner(userId,safeName,safeAvatar);
   Object.assign(state,clean,{profile:{name:safeName,avatar:safeAvatar,cloudLearnerId},schoolSchedule:{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]},courseSelections:{}});
   save();
-  try{home()}catch(e){}
+  // Defensive: cloud initialisation must not replace a mission restored at startup.
+  try{
+    if(session&&session.qs&&session.index<session.qs.length){
+      show("lesson");
+    }else{
+      home();
+    }
+  }catch(e){}
   return cloudLearnerId;
 };
 
@@ -563,7 +570,15 @@ window.gcseBoostApplyCloudProfileIdentity=function({userId,name,avatar}={}){
   const cloudLearnerId=ensureCloudLocalLearner(userId,safeName,safeAvatar);
   state.profile={...(state.profile||{}),name:safeName,avatar:safeAvatar,cloudLearnerId};
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
-  try{home()}catch(e){}
+  // V0.11B.4.2.2 — identity refresh must never knock an active mission back Home.
+  // DOMContentLoaded already restores/renders the saved session; leave that screen intact.
+  try{
+    if(session&&session.qs&&session.index<session.qs.length){
+      show("lesson");
+    }else{
+      home();
+    }
+  }catch(e){}
   return cloudLearnerId;
 };
 
