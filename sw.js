@@ -1,5 +1,5 @@
-const CACHE="levelup10-v0140";
-const ASSETS=["./","./index.html","./gcse-boost-b421.css?v=0140","./cloud-auth.css?v=0140","./app.js?v=0140","./fix-v011a29.js?v=011a29","./fix-v011a29-2.js?v=011a292","./cloud-auth.js?v=0140","./manifest.json","./icon-192.png","./icon-512.png"];
+const CACHE="levelup10-v0200";
+const ASSETS=["./","./index.html","./gcse-boost-b421.css?v=0200","./cloud-auth.css?v=0200","./app.js?v=0200","./fix-v011a29.js?v=011a29","./fix-v011a29-2.js?v=011a292","./cloud-auth.js?v=0200","./manifest.json","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match("./index.html"))))});
