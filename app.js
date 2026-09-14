@@ -514,23 +514,42 @@ function goHome(){session=null;clearActiveSession();closeOverlays();home();windo
 function goProgress(){session=null;showProgress()}
 function goProfile(){session=null;showProfile()}
 
-window.addEventListener("load",()=>{if(!activeLearner())showAccountWelcome()});
+// V0.11B.4.2 — cloud-first onboarding.
+// Never let the legacy device-only welcome screen take over a cloud build.
+window.addEventListener("load",()=>{
+  if(!activeLearner()){
+    document.getElementById("accountWelcome")?.remove();
+    setTimeout(()=>{ if(typeof window.showCloudAccount==="function") window.showCloudAccount(); },0);
+  }
+});
 
 // V0.11B.4 — Real Learner Accounts bridge.
 // A signed-in cloud learner starts with a clean learning state and keeps a stable
 // learner ID derived from the Supabase account UUID. Existing mission-resume logic is untouched.
+function ensureCloudLocalLearner(userId,name,avatar){
+  const safeName=String(name||"Learner").trim().slice(0,24)||"Learner";
+  const safeAvatar=avatar||"🎓";
+  const hex=String(userId||"").replace(/[^a-f0-9]/gi,"").toUpperCase();
+  const cloudLearnerId=hex.length>=8?`L-${hex.slice(0,4)}-${hex.slice(4,8)}`:makeLearnerId();
+  if(!accounts.learners[cloudLearnerId]){
+    accounts.learners[cloudLearnerId]={id:cloudLearnerId,name:safeName,avatar:safeAvatar,cloudLearnerId,cloudUserId:userId||null,created:new Date().toISOString()};
+  }else{
+    accounts.learners[cloudLearnerId]={...accounts.learners[cloudLearnerId],name:safeName,avatar:safeAvatar,cloudLearnerId,cloudUserId:userId||accounts.learners[cloudLearnerId].cloudUserId||null};
+  }
+  accounts.active=cloudLearnerId;
+  saveAccounts(accounts);
+  KEY=learnerStateKey(cloudLearnerId);
+  document.getElementById("accountWelcome")?.remove();
+  return cloudLearnerId;
+}
+
 window.gcseBoostConfigureCloudLearner=function({userId,name,avatar}={}){
   const clean=fresh();
   const safeName=String(name||"Learner").trim().slice(0,24)||"Learner";
   const allowed=["🎓","🚀","⭐","🦊","🐼","🦁","🐯","🦄","⚡"];
   const safeAvatar=allowed.includes(avatar)?avatar:"🎓";
-  const hex=String(userId||"").replace(/[^a-f0-9]/gi,"").toUpperCase();
-  const cloudLearnerId=hex.length>=8?`L-${hex.slice(0,4)}-${hex.slice(4,8)}`:makeLearnerId();
+  const cloudLearnerId=ensureCloudLocalLearner(userId,safeName,safeAvatar);
   Object.assign(state,clean,{profile:{name:safeName,avatar:safeAvatar,cloudLearnerId},schoolSchedule:{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]},courseSelections:{}});
-  if(activeLearner()){
-    accounts.learners[accounts.active]={...accounts.learners[accounts.active],name:safeName,avatar:safeAvatar,cloudLearnerId};
-    saveAccounts(accounts);
-  }
   save();
   try{home()}catch(e){}
   return cloudLearnerId;
@@ -541,13 +560,8 @@ window.gcseBoostApplyCloudProfileIdentity=function({userId,name,avatar}={}){
   const safeName=String(name||"Learner").trim().slice(0,24)||"Learner";
   const allowed=["🎓","🚀","⭐","🦊","🐼","🦁","🐯","🦄","⚡"];
   const safeAvatar=allowed.includes(avatar)?avatar:(state?.profile?.avatar||"🎓");
-  const hex=String(userId||"").replace(/[^a-f0-9]/gi,"").toUpperCase();
-  const cloudLearnerId=hex.length>=8?`L-${hex.slice(0,4)}-${hex.slice(4,8)}`:(state?.profile?.cloudLearnerId||makeLearnerId());
+  const cloudLearnerId=ensureCloudLocalLearner(userId,safeName,safeAvatar);
   state.profile={...(state.profile||{}),name:safeName,avatar:safeAvatar,cloudLearnerId};
-  if(activeLearner()){
-    accounts.learners[accounts.active]={...accounts.learners[accounts.active],name:safeName,avatar:safeAvatar,cloudLearnerId};
-    saveAccounts(accounts);
-  }
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
   try{home()}catch(e){}
   return cloudLearnerId;

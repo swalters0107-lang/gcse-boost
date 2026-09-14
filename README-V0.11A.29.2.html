@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>GCSE Boost V0.11A.29.2 — Home Button Repair | gcse-boost</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="GCSE Boost V0.11A.29.2 — Home Button Repair" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="GCSE Boost Revision App" />
+<meta property="og:description" content="GCSE Boost Revision App" />
+<link rel="canonical" href="https://levelup10.co.uk/README-V0.11A.29.2.html" />
+<meta property="og:url" content="https://levelup10.co.uk/README-V0.11A.29.2.html" />
+<meta property="og:site_name" content="gcse-boost" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="GCSE Boost V0.11A.29.2 — Home Button Repair" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"GCSE Boost Revision App","headline":"GCSE Boost V0.11A.29.2 — Home Button Repair","url":"https://levelup10.co.uk/README-V0.11A.29.2.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=1338d9e5e9f8afb5bdc4470eab74f8f5fd8072ea">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://levelup10.co.uk/">gcse-boost</a></h1>
+      
+
+      <h1 id="gcse-boost-v011a292--home-button-repair">GCSE Boost V0.11A.29.2 — Home Button Repair</h1>
+
+<p>This is the safe follow-up to V0.11A.29.</p>
+
+<p>Root cause found in the live V0.11A.28/29 code:
+<code class="language-plaintext highlighter-rouge">lockCurrentAnswer()</code> disabled every button inside the lesson except NEXT.
+The HOME button has class <code class="language-plaintext highlighter-rouge">ghost</code>, not <code class="language-plaintext highlighter-rouge">back</code>, so it was disabled after an answer
+and remained disabled when Recovery started.</p>
+
+<p>Fix:</p>
+<ul>
+  <li>Excludes <code class="language-plaintext highlighter-rouge">lessonBack</code> from answer locking.</li>
+  <li>Re-enables HOME once after each question render.</li>
+  <li>No MutationObserver.</li>
+  <li>No DOM cloning.</li>
+  <li>Keeps V0.11A.29 category cleanup and MCQ answer randomisation.</li>
+</ul>
+
+<p>Upload all files in this ZIP to the repository root.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
