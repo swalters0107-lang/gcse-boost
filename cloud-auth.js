@@ -1,4 +1,4 @@
-/* LevelUp10 V0.12.0 — Platform Foundation
+/* LevelUp10 V0.12.0.1 — Platform Connection Repair
    Supabase is the signed-in learner's source of truth.
    Local storage remains an offline cache. Existing test-only local progress is not migrated.
 */
@@ -25,17 +25,37 @@
   async function ensureLevelUp10Platform(){
     if(!client||!currentUser)return;
     platformReady=false; currentGcseProfile=null;
-    // V0.12.0: the authenticated person is the LevelUp10 identity. GCSE is an app membership.
-    const {error:membershipError}=await client.from("user_apps").upsert(
-      {user_id:currentUser.id,app_id:"gcse",last_opened_at:new Date().toISOString()},
-      {onConflict:"user_id,app_id"}
-    );
-    if(membershipError)throw new Error(`LevelUp10 app membership: ${membershipError.message}`);
-    const {data:gcseProfile,error:gcseProfileError}=await client.from("gcse_profiles").upsert(
-      {user_id:currentUser.id},
-      {onConflict:"user_id",ignoreDuplicates:true}
-    ).select("user_id,current_level,maths_tier,science_tier,maths_higher_unlocked,science_higher_unlocked").single();
-    if(gcseProfileError)throw new Error(`GCSE profile: ${gcseProfileError.message}`);
+    // V0.12.0.1: use explicit select/insert/update operations rather than
+    // relying on an upsert returning a row. This is more predictable with RLS.
+    const openedAt=new Date().toISOString();
+    const {data:membership,error:membershipReadError}=await client.from("user_apps")
+      .select("user_id,app_id,last_opened_at")
+      .eq("user_id",currentUser.id).eq("app_id","gcse").maybeSingle();
+    if(membershipReadError)throw new Error(`LevelUp10 membership read: ${membershipReadError.message}`);
+    if(!membership){
+      const {error:membershipInsertError}=await client.from("user_apps")
+        .insert({user_id:currentUser.id,app_id:"gcse",last_opened_at:openedAt});
+      if(membershipInsertError)throw new Error(`LevelUp10 membership create: ${membershipInsertError.message}`);
+    }else{
+      const {error:membershipUpdateError}=await client.from("user_apps")
+        .update({last_opened_at:openedAt})
+        .eq("user_id",currentUser.id).eq("app_id","gcse");
+      if(membershipUpdateError)throw new Error(`LevelUp10 membership update: ${membershipUpdateError.message}`);
+    }
+
+    let {data:gcseProfile,error:gcseReadError}=await client.from("gcse_profiles")
+      .select("user_id,current_level,maths_tier,science_tier,maths_higher_unlocked,science_higher_unlocked")
+      .eq("user_id",currentUser.id).maybeSingle();
+    if(gcseReadError)throw new Error(`GCSE profile read: ${gcseReadError.message}`);
+    if(!gcseProfile){
+      const {error:gcseInsertError}=await client.from("gcse_profiles").insert({user_id:currentUser.id});
+      if(gcseInsertError)throw new Error(`GCSE profile create: ${gcseInsertError.message}`);
+      const reread=await client.from("gcse_profiles")
+        .select("user_id,current_level,maths_tier,science_tier,maths_higher_unlocked,science_higher_unlocked")
+        .eq("user_id",currentUser.id).single();
+      if(reread.error)throw new Error(`GCSE profile verify: ${reread.error.message}`);
+      gcseProfile=reread.data;
+    }
     currentGcseProfile=gcseProfile; platformReady=true;
   }
 
@@ -116,7 +136,7 @@
   function activateTab(create){document.getElementById("cloudTabSignIn")?.classList.toggle("active",!create);document.getElementById("cloudTabCreate")?.classList.toggle("active",create)}
   function showSignInForm(){activateTab(false);const f=document.getElementById("cloudForm");if(!f)return;f.innerHTML='<label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="current-password" minlength="8"></label><button id="cloudSignIn" class="cloud-primary" type="button">SIGN IN</button><div id="cloudMessage" class="cloud-message"></div>';document.getElementById("cloudSignIn").onclick=()=>{const e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value;if(!e||p.length<8)return message("Enter your email and password (8+ characters).","error");signIn(e,p)}}
   function showCreateForm(){activateTab(true);const f=document.getElementById("cloudForm");if(!f)return;const n=document.getElementById("profileName")?.textContent?.trim()||"Learner";window.gcseBoostPendingAvatar="🎓";const avatars=["🎓","🚀","⭐","🦊","🐼","🦁"];f.innerHTML=`<label class="cloud-label">Learner name<input id="cloudDisplayName" type="text" maxlength="24" value="${esc(n)}" autocomplete="nickname"></label><div class="cloud-label">Choose an avatar<div class="cloud-avatar-picks">${avatars.map((a,i)=>`<button type="button" class="cloud-avatar-pick ${i===0?"selected":""}" data-avatar="${a}">${a}</button>`).join("")}</div></div><label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="new-password" minlength="8"></label><button id="cloudCreate" class="cloud-primary" type="button">CREATE LEARNER ACCOUNT</button><div id="cloudMessage" class="cloud-message"></div><p class="cloud-small">Starts fresh at Level 1. Progress, timetable, rewards and settings then follow this account across devices.</p>`;f.querySelectorAll(".cloud-avatar-pick").forEach(b=>b.onclick=()=>{f.querySelectorAll(".cloud-avatar-pick").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");window.gcseBoostPendingAvatar=b.dataset.avatar});document.getElementById("cloudCreate").onclick=()=>{const n=document.getElementById("cloudDisplayName").value.trim(),e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value;if(!n||!e||p.length<8)return message("Enter a learner name, email and password of at least 8 characters.","error");signUp(e,p,n)}}
-  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.12.0</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});await loadCloudIdentity();renderCloudAccount()}
+  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.12.0.1</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});try{await loadCloudIdentity();renderCloudAccount()}catch(e){console.warn("LevelUp10 platform check failed",e);cloudLoadState="failed";cloudLoadError=e?.message||String(e);const body=document.getElementById("cloudAccountBody");if(body)body.innerHTML=`<div class="cloud-connected-card"><h3>Platform connection needs attention</h3><p class="cloud-small">Your existing GCSE progress is still safe.</p><div class="cloud-message error">${esc(cloudLoadError)}</div><button id="cloudRetry" class="cloud-primary" type="button">TRY AGAIN</button></div>`;document.getElementById("cloudRetry")?.addEventListener("click",showCloudAccount)}}
   async function init(){ensureUi();if(!window.supabase?.createClient){setStatus("Offline / cloud unavailable",false);return}client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((_event,session)=>{setTimeout(async()=>{const next=session?.user?.id||null;if(next!==currentUser?.id)loadedUserId=null;await loadCloudIdentity(true)},0)});window.addEventListener("online",()=>{if(currentUser){loadCloudIdentity(true).then(()=>{if(pendingSave)saveNow()})}});try{await loadCloudIdentity(true)}catch(e){console.warn("Cloud account check failed",e)}}
   window.showCloudAccount=showCloudAccount;window.addEventListener("DOMContentLoaded",init);
 })();
