@@ -1,9 +1,9 @@
-# LevelUp10 V0.20.0 — Full GCSE Curriculum V1
+# LevelUp10 V0.20.2 — Question Bank Quality Repair
 
-Major curriculum release built from V0.14.0. Preserves Maths, AQA Combined Science, AQA English Language, cloud identity, mission resume, Dragon and gamification.
+Quality repair built from the confirmed V0.20.1 full-curriculum baseline.
 
-Remaining V1 curriculum architecture added for Pearson Edexcel History, AQA Geography, AQA German, Pearson Edexcel Spanish (2024), OCR Drama J316, Pearson Edexcel Citizenship, OCR Cambridge National Sport Science J828, WJEC Hospitality & Catering and Pearson Edexcel Religious Studies.
-
-History/RE course filtering is preserved. Drama set-text and Sport Science optional-unit selectors are added to the same course-selection system. Exact duplicate assessment cleanup runs across the nine remaining subjects. RE is strengthened with additional structured recall/application activities.
-
-V0.20.0 is intended as the complete curriculum-foundation release; future work should focus on whole-app QA, adaptive weak-area targeting and learner experience rather than raw question-count expansion.
+- Replaced 594 generic placeholder MCQ distractor sets with subject/curriculum-area alternatives.
+- Balanced the correct-answer position deterministically across repaired MCQs.
+- Removed 63 repeated Science required-practical “Version 2/3/4” clones, retaining one core question per practical activity rather than inflating the bank with duplicate templates.
+- Preserves the V0.20.1 curriculum coverage layer, course selectors, LevelUp10 identity/cloud sync, mission resume, Dragon, shop and progression behaviour.
+- Deployment package intentionally contains only current runtime files plus this README.
