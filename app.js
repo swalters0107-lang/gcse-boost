@@ -321,7 +321,7 @@ function topicStats(subject){const ts=[...new Set(BANK.filter(q=>q.subject===sub
 function weakAreas(){let out=[];["Maths","English","Science","History","Geography","German","Drama","Citizenship","Sport Science","Catering","Spanish","RE"].forEach(sub=>topicStats(sub).filter(x=>x.n>=1&&x.acc<75).slice(0,3).forEach(x=>out.push({subject:sub,...x})));return out.sort((a,b)=>a.acc-b.acc).slice(0,6)}
 function bossAvailable(){return state.missions>0&&state.missions%5===0&&state.lastBoss!==state.missions}
 function bossQuestions(){let weak=weakAreas(),out=[];for(const w of weak){let p=BANK.map(normalise).filter(q=>q.subject===w.subject&&q.topic===w.topic);p.sort(()=>Math.random()-.5);if(p[0]&&!out.includes(p[0]))out.push(p[0])}let all=BANK.map(normalise).filter(q=>(q.grade||4)>=4&&(q.grade||4)<=6);all.sort(()=>Math.random()-.5);for(const q of all)if(out.length<10&&!out.includes(q))out.push(q);return diversePick(out,10)}
-// V0.11B.5.1 — Rare Dragon Encounter
+// V0.11B.5.2 — Rare Dragon Encounter
 const DRAGON_QUESTION_COUNT=20,DRAGON_REWARD=1000,DRAGON_LIVES=3,DRAGON_CHANCE=0.04;
 function dragonDay(){return new Date().toISOString().slice(0,10)}
 function dragonRandom(){try{let a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}catch(e){return Math.random()}}
@@ -346,30 +346,34 @@ function maybeRollDragon(){
  let qs=dragonQuestions();if(qs.length<DRAGON_QUESTION_COUNT){save();return false}
  state.dragon.lastEncounterDate=d;state.dragon.pending={id:`dragon-${d}-${Date.now()}`,date:d,qs};save();return true
 }
+// Forced QA flag survives the cloud identity hand-off. The URL can be consumed immediately,
+// but the flag remains until the learner actually starts the Dragon battle.
+let FORCE_DRAGON_TEST=false;
+try{
+ const dp=new URLSearchParams(location.search);
+ if(dp.get("dragon")==="1"||dp.get("dragonTest")==="1"){
+   FORCE_DRAGON_TEST=true;sessionStorage.setItem("levelup10ForceDragon","1");
+   dp.delete("dragon");dp.delete("dragonTest");
+   const dq=dp.toString();history.replaceState(null,"",location.pathname+(dq?`?${dq}`:"")+location.hash);
+ }else FORCE_DRAGON_TEST=sessionStorage.getItem("levelup10ForceDragon")==="1";
+}catch(e){}
 function renderDragon(){
  let card=document.getElementById("dragonCard"),text=document.getElementById("dragonText");if(!card||!text)return;
- // V0.11B.5.1 — forced QA route. Accept ?dragon=1 (and legacy ?dragonTest=1),
- // create one encounter immediately, then consume the query so Home cannot generate another battle.
+ // V0.11B.5.2 — retry the forced encounter after every Home render. This matters because
+ // cloud sign-in swaps from the temporary/local learner state to the cloud learner state after load.
  try{
-   const params=new URLSearchParams(location.search);
-   const forceDragon=params.get("dragon")==="1"||params.get("dragonTest")==="1";
-   if(forceDragon&&!state.dragon?.pending){
+   if(FORCE_DRAGON_TEST&&!state.dragon?.pending){
      let qs=dragonQuestions();
      if(qs.length===DRAGON_QUESTION_COUNT){
-       state.dragon.pending={id:`dragon-test-${Date.now()}`,date:dragonDay(),qs};
-       save();
+       state.dragon.pending={id:`dragon-test-${Date.now()}`,date:dragonDay(),qs};save();
      }
-   }
-   if(forceDragon){
-     params.delete("dragon");params.delete("dragonTest");
-     const q=params.toString();
-     history.replaceState(null,"",location.pathname+(q?`?${q}`:"")+location.hash);
    }
  }catch(e){}
  if(state.dragon?.pending){card.classList.remove("hidden");text.textContent=`20 mixed-subject questions • 3 Dragon lives • ${DRAGON_REWARD.toLocaleString()} coin reward`;}
  else card.classList.add("hidden")
 }
 function startDragon(){
+ try{FORCE_DRAGON_TEST=false;sessionStorage.removeItem("levelup10ForceDragon")}catch(e){}
  let pending=state.dragon?.pending;if(!pending||!Array.isArray(pending.qs)||pending.qs.length!==DRAGON_QUESTION_COUNT)return;
  session={subject:"Dragon Encounter",qs:pending.qs,index:0,correct:0,answered:false,isReadiness:false,isBoss:false,isDragon:true,dragonLives:DRAGON_LIVES,normalLives:state.lives,recoveries:0,sessionMistakes:[]};state.dragon.pending=null;save();saveActiveSession();show("lesson");render()
 }
