@@ -840,3 +840,23 @@ window.gcseBoostCloudLearnerId=function(){return state?.profile?.cloudLearnerId|
  sh.forEach(([skill,g,pat,make])=>{for(let i=0;i<6;i++){let [q,a,w]=make(i);add("Statistics",skill,g+(i>3?1:0),"Higher",pat+"-h"+(i+1),q,a,w)}});
  BANK.push(...P);
 })();
+
+// V0.12.8 — Maths quality audit repair: strengthen Higher Number and remove true duplicate items.
+(function mathsQualityRepairV0128(){
+ const add=(skill,grade,pattern,q,answer,why)=>BANK.push({subject:"Maths",strand:"Number",topic:skill,skill,grade,difficulty:grade,tier:"Higher",pattern,type:"typed",q,answer:String(answer),why});
+ const nums=[2,3,4,5,6,7,8,9,10,12,15,20];
+ nums.forEach((b,i)=>{ const n=2+(i%3); add("Powers, roots & indices",6+(i%2),"negative-index-h"+(i+1),`Write ${b}^-${n} as 1/n. What is n?`,Math.pow(b,n),"A negative index means take the reciprocal: a^-n = 1/a^n."); });
+ const rec=[["0.333...",3],["0.666...",3],["0.111...",9],["0.222...",9],["0.444...",9],["0.555...",9],["0.777...",9],["0.888...",9],["0.090909...",11],["0.181818...",11],["0.272727...",11],["0.363636...",11]];
+ rec.forEach(([d,den],i)=>add("Fractions",6+(i>7?1:0),"recurring-decimal-h"+(i+1),`The recurring decimal ${d} can be written as a fraction with denominator ${den}. What is the numerator in its simplest form?`, i<8 ? [1,2,1,2,4,5,7,8][i] : [1,2,3,4][i-8],"Convert the recurring decimal to a fraction, then simplify."));
+ const sf=[[3,4,2,3],[6,5,3,2],[8,3,4,2],[9,6,3,4],[2,7,5,3],[4,8,2,5],[5,9,3,6],[7,4,2,7],[3,6,4,5],[8,5,2,6],[6,7,3,5],[9,4,2,8]];
+ sf.forEach(([a,e,b,f],i)=>{let val=(a*b),pow=e+f; while(val>=10){val/=10;pow++} add("Standard form",6+(i%3===0),"sf-multiply-h"+(i+1),`(${a} × 10^${e}) × (${b} × 10^${f}) = k × 10^${pow}. Find k.`,val,"Multiply the numbers, add the powers of ten, then normalise the coefficient.")});
+ const surd=[[18,2,3],[32,2,4],[50,2,5],[72,2,6],[98,2,7],[108,3,6],[147,3,7],[192,3,8],[200,2,10],[242,2,11],[288,2,12],[363,3,11]];
+ surd.forEach(([n,r,k],i)=>add("Exact calculation & surds",6+(i>5?1:0),"simplify-surd-h"+(i+1),`√${n} = k√${r}. Find k.`,k,"Take the largest square factor out of the square root."));
+ const bounds=[[12.4,.1],[8.7,.1],[3.25,.01],[19.6,.1],[42.35,.01],[6.125,.001],[81.4,.1],[0.76,.01],[15.55,.01],[2.375,.001],[104.5,1],[250,10]];
+ bounds.forEach(([x,u],i)=>add("Bounds & estimation",6+(i>7?1:0),"upper-bound-h"+(i+1),`${x} is rounded to the nearest ${u}. Give the upper bound.`,x+u/2,"The upper bound is half a rounding unit above the stated value."));
+ const pf=[[72,2],[108,3],[200,2],[432,3],[675,3],[980,2],[1215,3],[1372,2],[1575,3],[2025,3],[2401,7],[3125,5]];
+ pf.forEach(([n,pv],i)=>{let m=n,c=0;while(m%pv===0){c++;m/=pv}add("Factors, multiples & primes",6+(i>7?1:0),"prime-power-h"+(i+1),`In the prime factorisation of ${n}, what is the power of ${pv}?`,c,"Repeatedly divide by the prime to find its exponent in the prime factorisation.")});
+ // Remove only exact duplicate assessment items (same prompt and same options for MCQ).
+ const seen=new Set();
+ for(let i=BANK.length-1;i>=0;i--){const q=BANK[i]; if(q.subject!=="Maths")continue; const key=(q.q||"").trim().toLowerCase()+"|"+JSON.stringify(q.a||[]).toLowerCase(); if(seen.has(key))BANK.splice(i,1); else seen.add(key);}
+})();
