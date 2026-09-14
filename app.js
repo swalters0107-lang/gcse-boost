@@ -60,7 +60,14 @@ const ACTIVE_SESSION_KEY="gcseBoostActiveMissionV011B31";
 function saveActiveSession(){
  try{if(session)localStorage.setItem(ACTIVE_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(ACTIVE_SESSION_KEY)}catch(e){}
 }
-function clearActiveSession(){try{localStorage.removeItem(ACTIVE_SESSION_KEY)}catch(e){}}
+function clearActiveSession(){
+ try{
+  localStorage.removeItem(ACTIVE_SESSION_KEY);
+  // V0.11B.3.2: remove the legacy B.3 key too. B.3.1 could otherwise
+  // fall back to the old mission after the learner deliberately tapped Home.
+  localStorage.removeItem("gcseBoostActiveMissionV011B3");
+ }catch(e){}
+}
 function loadActiveSession(){
  try{const raw=localStorage.getItem(ACTIVE_SESSION_KEY)||localStorage.getItem("gcseBoostActiveMissionV011B3");if(!raw)return null;const s=JSON.parse(raw);return s&&Array.isArray(s.qs)&&s.qs.length&&Number.isInteger(s.index)?s:null}catch(e){return null}
 }
@@ -503,7 +510,7 @@ function attachHomeProfile(){setTimeout(()=>{let a=document.getElementById("app"
 
 function closeOverlays(){document.querySelectorAll(".app-overlay").forEach(x=>x.remove())}
 function openOverlay(id,html){closeOverlays();document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));let o=document.createElement("div");o.id=id;o.className="app-overlay";o.innerHTML=html;document.body.appendChild(o);window.scrollTo(0,0)}
-function goHome(){session=null;closeOverlays();home();window.scrollTo(0,0)}
+function goHome(){session=null;clearActiveSession();closeOverlays();home();window.scrollTo(0,0)}
 function goProgress(){session=null;showProgress()}
 function goProfile(){session=null;showProfile()}
 
