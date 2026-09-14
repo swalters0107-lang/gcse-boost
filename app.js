@@ -39,7 +39,7 @@ function addAnotherLearner(){closeOverlays();showAccountWelcome()}
 function accountPanelHTML(){let me=activeLearner(),all=Object.values(accounts.learners);return `<div class="account-page"><button class="back" onclick="goHome()">← Home</button><h1>Beta Accounts</h1><div class="card"><h2>${me?me.avatar+" "+me.name:"Learner"}</h2><p><b>Learner ID:</b> ${me?me.id:"—"}</p><p><b>Storage:</b> This device</p><p><b>Cloud sync:</b> Not connected yet</p><p><b>Version:</b> V0.11A.28</p></div><h2>Profiles on this device</h2><div class="account-list">${all.map(x=>`<button class="account-row ${me&&x.id===me.id?"active":""}" onclick="switchLearner('${x.id}')"><span>${x.avatar}</span><b>${x.name}</b><small>${me&&x.id===me.id?"Current":"Switch"}</small></button>`).join("")}</div><button class="primary" onclick="addAnotherLearner()">+ ADD ANOTHER LEARNER</button><p class="beta-note">V0.11A tests separate learner progress. Cloud accounts come next.</p></div>`}
 function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
 
-// V0.11B.3 — richer algebra: x appears inside the calculation, not only in the instruction.
+// V0.11B.3.1 — richer algebra: x appears inside the calculation, not only in the instruction.
 (function addAlgebraUpgrade(){
  const rows=[];
  const add=(grade,q,answer,why)=>rows.push({subject:"Maths",topic:"Algebra",grade,type:"typed",q,answer:String(answer),why,difficulty:grade,tier:grade<=5?"Foundation":"Higher"});
@@ -56,13 +56,13 @@ function showAccounts(){openOverlay("accountOverlay",accountPanelHTML())}
  BANK.push(...rows);
 })();
 
-const ACTIVE_SESSION_KEY="gcseBoostActiveMissionV011B3";
+const ACTIVE_SESSION_KEY="gcseBoostActiveMissionV011B31";
 function saveActiveSession(){
  try{if(session)localStorage.setItem(ACTIVE_SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(ACTIVE_SESSION_KEY)}catch(e){}
 }
 function clearActiveSession(){try{localStorage.removeItem(ACTIVE_SESSION_KEY)}catch(e){}}
 function loadActiveSession(){
- try{const raw=localStorage.getItem(ACTIVE_SESSION_KEY);if(!raw)return null;const s=JSON.parse(raw);return s&&Array.isArray(s.qs)&&s.qs.length&&Number.isInteger(s.index)?s:null}catch(e){return null}
+ try{const raw=localStorage.getItem(ACTIVE_SESSION_KEY)||localStorage.getItem("gcseBoostActiveMissionV011B3");if(!raw)return null;const s=JSON.parse(raw);return s&&Array.isArray(s.qs)&&s.qs.length&&Number.isInteger(s.index)?s:null}catch(e){return null}
 }
 
 let state=load(),session=loadActiveSession();if(!Array.isArray(state.served))state.served=[];state.missions=state.missions||0;state.bossWins=state.bossWins||0;state.lastBoss=state.lastBoss||null;
@@ -228,7 +228,13 @@ window.gcseBoostApplyCloudState=(cloudState,scalars={})=>{
   if(scalars.boss_wins!=null)state.bossWins=Number(scalars.boss_wins)||0;
   state.schoolSchedule=state.schoolSchedule||{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]};
   try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
-  try{home()}catch(e){}
+  try{
+    if(session&&session.qs&&session.index<session.qs.length){
+      show("lesson");
+    }else{
+      home();
+    }
+  }catch(e){}
 };
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));$(id)?.classList.remove("hidden")}
 const SCHOOL_DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
