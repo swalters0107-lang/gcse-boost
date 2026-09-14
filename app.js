@@ -276,7 +276,7 @@ function diversePick(pool,count){let recent=recentFingerprints(100),seenPatterns
 function normalise(q){const x={...q};x.prompt=q.q||q.question||q.prompt||"Question";x.choices=Array.isArray(q.a)?q.a:(Array.isArray(q.options)?q.options:(Array.isArray(q.answers)?q.answers:(Array.isArray(q.choices)?q.choices:[])));x.kind=x.choices.length>=2?"mcq":(q.type==="typed_text"||q.type==="written"?"written":"short");if(x.kind==="mcq"){if(typeof q.correct==="number")x.correctIndex=q.correct;else{x.correctIndex=x.choices.findIndex(v=>closeText(v,q.correct??q.answer));}}x.expected=q.answer??q.correctAnswer??(x.kind==="mcq"?x.choices[x.correctIndex]:q.correct);x.explanation=q.why||q.explanation||q.explain||"";return x}
 
 const CATEGORY_GROUPS={
- "Maths":{"Number":["Number","Division","Fractions","Decimals","Percentages"],"Ratio & Proportion":["Ratio","Proportion"],"Algebra":["Algebra"],"Geometry & Measures":["Geometry","Measures"],"Statistics & Probability":["Statistics","Probability"]},
+ "Maths":{"Number":["Number","Division"],"Algebra":["Algebra","Graphs","Quadratics","Functions","Simultaneous equations"],"Ratio, Proportion & Rates of Change":["Percentages","Ratio","Proportion","Rates of change"],"Geometry & Measures":["Area","Pythagoras","Geometry","Measures","Trigonometry","Vectors","Bearings","Transformations"],"Probability":["Probability"],"Statistics":["Statistics"]},
  "Science":{"Biology":["Biology"],"Chemistry":["Chemistry"],"Physics":["Physics"],"Working Scientifically":["Working Scientifically"]},
  "English":{"Reading":["Reading","Retrieval","Inference"],"Language":["Language"],"Structure":["Structure"],"Evaluation":["Evaluation"],"Writing":["Writing"]},
  "Geography":{"Physical Geography":["Physical"],"Human Geography":["Human"],"Geographical Skills":["Skills","Fieldwork"]},
@@ -290,6 +290,23 @@ const CATEGORY_GROUPS={
  "RE":{"Christianity":["Christianity","Christian"],"Catholic Christianity":["Catholic"],"Islam":["Islam","Muslim"],"Judaism":["Judaism","Jewish"],"Buddhism":["Buddhism","Buddhist"],"Hinduism":["Hinduism","Hindu"],"Sikhism":["Sikhism","Sikh"],"Philosophy & Ethics":["Philosophy","Ethics","Relationships","Families","Existence of God"],"Religion, Peace & Conflict":["Crime","Punishment","Peace","Conflict","Religious Life"]}
 };
 function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+// V0.12.2 — Pearson Edexcel 1MA1 curriculum architecture.
+// The six strands mirror the qualification specification; skills are intentionally
+// finer-grained so mastery can later be tracked at skill rather than legacy topic level.
+const MATHS_CURRICULUM={
+ "Number":["Integers & place value","Four operations","Factors, multiples & primes","Powers, roots & indices","Fractions","Decimals","Standard form","Exact calculation & surds","Bounds & estimation"],
+ "Algebra":["Notation & expressions","Substitution","Expanding & factorising","Algebraic fractions","Equations","Inequalities","Sequences","Coordinates & straight-line graphs","Quadratic graphs & equations","Simultaneous equations","Functions","Iteration & algebraic proof"],
+ "Ratio, Proportion & Rates of Change":["Units & conversions","Ratio notation & sharing","Fractions and ratio","Percentages & percentage change","Direct proportion","Inverse proportion","Compound measures","Scale factors & similarity","Growth & decay","Rates of change"],
+ "Geometry & Measures":["Angles","Properties of shapes","Perimeter & area","Circles","Volume & surface area","Transformations","Constructions & loci","Bearings","Congruence & similarity","Pythagoras","Trigonometry","Vectors"],
+ "Probability":["Probability scale","Single-event probability","Sample spaces","Combined events","Tree diagrams","Venn diagrams & set notation","Relative frequency","Conditional probability"],
+ "Statistics":["Sampling","Tables & charts","Averages & range","Grouped data","Scatter graphs","Time series","Histograms","Cumulative frequency","Box plots","Comparing distributions"]
+};
+function mathsCurriculumCount(strand){return pool("Maths").filter(q=>categoryFor(q)===strand).length}
+function mathsCategoryPicker(){
+ const cards=Object.entries(MATHS_CURRICULUM).map(([strand,skills])=>{const n=mathsCurriculumCount(strand),disabled=!n;return `<div class="maths-strand-card ${disabled?"curriculum-gap":""}"><button class="category-choice" data-cat="${escapeHtml(strand)}" ${disabled?"disabled":""}><b>${escapeHtml(strand)}</b><small>${n?`${n} current questions`:`Content rebuild required`}</small></button><details><summary>${skills.length} skills</summary><div class="curriculum-skills">${skills.map(x=>`<span>${escapeHtml(x)}</span>`).join("")}</div></details></div>`}).join("");
+ return `<section class="profile-page"><div class="profile-nav"><button class="secondary" onclick="goHome()">← Home</button></div><div class="panel"><h2>Maths</h2><p class="muted">Pearson Edexcel GCSE (1MA1) · six specification strands. Choose a strand or use all current Maths content.</p><button class="category-choice category-all" data-cat="All">✨ All current topics</button><div class="maths-curriculum-grid">${cards}</div><p class="muted curriculum-note">Greyed strands show where the existing question bank still needs rebuilding. They are mapped now so new questions can be added to the correct skill.</p></div></section>`
+}
 
 const COURSE_OPTIONS={
  RE:["Christianity","Catholic Christianity","Islam","Judaism","Buddhism","Hinduism","Sikhism","Philosophy & Ethics","Religion, Peace & Conflict"],
@@ -311,6 +328,7 @@ function categoriesFor(subject){
 }
 function categoryPool(subject,category="All"){let p=pool(subject);return category==="All"?p:p.filter(q=>categoryFor(q)===category)}
 function showCategoryPicker(subject){
+ if(subject==="Maths"){openOverlay("categoryOverlay",mathsCategoryPicker());document.querySelectorAll(".category-choice:not([disabled])").forEach(b=>b.onclick=()=>start(subject,b.dataset.cat));return}
  let cats=categoriesFor(subject),buttons=cats.map(c=>`<button class="category-choice ${c==="All"?"category-all":""}" data-cat="${escapeHtml(c)}">${c==="All"?"✨ All topics":escapeHtml(c)}</button>`).join("");
  openOverlay("categoryOverlay",`<section class="profile-page"><div class="profile-nav"><button class="secondary" onclick="goHome()">← Home</button></div><div class="panel"><h2>${escapeHtml(subject)}</h2><p class="muted">Choose a category, or use <b>All topics</b> for a coverage-balanced mission.</p>${["RE","History"].includes(subject)?`<button class="secondary course-settings-btn" onclick="showCourseOptions(\'${subject}\')">⚙️ Choose my ${subject} course</button>`:""}<div class="category-grid">${buttons}</div></div></section>`);
  document.querySelectorAll(".category-choice").forEach(b=>b.onclick=()=>start(subject,b.dataset.cat));

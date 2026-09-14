@@ -256,3 +256,6 @@ body[class*="app-theme-"] .stats>div{
 /* V0.11B.5.3 home/profile layout */
 .profile-account-panel{margin:14px 0}.profile-account-panel .full-btn{margin-top:10px}.profile-account-panel .secondary{background:transparent;border:1px solid rgba(127,127,127,.25)}
 #dragonCard{margin-top:14px;margin-bottom:18px}
+
+/* V0.12.2 Maths curriculum map */
+.maths-curriculum-grid{display:grid;gap:14px;margin-top:16px}.maths-strand-card{border:1px solid #e2e4e9;border-radius:18px;padding:10px;background:#fff}.maths-strand-card .category-choice{width:100%;text-align:left;display:flex;justify-content:space-between;gap:12px;align-items:center}.maths-strand-card .category-choice small{font-weight:500;color:#6b7280}.maths-strand-card details{padding:8px 8px 2px}.maths-strand-card summary{cursor:pointer;font-weight:700}.curriculum-skills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.curriculum-skills span{background:#f3f4f6;border-radius:999px;padding:7px 10px;font-size:.82rem}.maths-strand-card.curriculum-gap{background:#f7f7f8}.maths-strand-card.curriculum-gap .category-choice{opacity:.55}.curriculum-note{margin-top:16px}.category-choice[disabled]{cursor:not-allowed}
