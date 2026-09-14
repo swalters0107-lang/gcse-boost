@@ -1,4 +1,4 @@
-/* GCSE Boost V0.11B.2 — Cloud Save System
+/* GCSE Boost V0.11B.2.1 — Cloud Load Repair
    Supabase is the signed-in learner's source of truth.
    Local storage remains an offline cache. Existing test-only local progress is not migrated.
 */
@@ -6,7 +6,7 @@
   "use strict";
   const SUPABASE_URL="https://ztvsjiufbgmbaqggslwe.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_CHhugtMm-XG2blQIm01mqA_uxuXEbJA";
-  let client=null,currentUser=null,currentProfile=null,loadedUserId=null;
+  let client=null,currentUser=null,currentProfile=null,loadedUserId=null,cloudLoadState="idle",cloudLoadError="";
   let saveTimer=null,syncing=false,pendingSave=false,lastSavedAt=null;
   const esc=v=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
 
@@ -31,13 +31,18 @@
     if(!force&&loadedUserId===currentUser.id)return;
     syncing=true;setStatus("Loading cloud…",true);
     try{
-      const {data,error}=await client.from("student_data").select("student_id,xp,coins,streak,lives,missions,boss_wins,state,updated_at").eq("student_id",currentUser.id).single();
+      cloudLoadState="loading"; cloudLoadError="";
+      // Select the row without naming optional scalar columns. This makes startup
+      // tolerant of older student_data schemas while state JSON remains canonical.
+      const {data,error}=await client.from("student_data").select("*").eq("student_id",currentUser.id).maybeSingle();
       if(error)throw error;
+      if(!data)throw new Error("No student progress row exists for this account");
       if(typeof window.gcseBoostApplyCloudState!=="function")throw new Error("Learning engine is not ready");
       window.gcseBoostApplyCloudState(data.state||{},data);
       loadedUserId=currentUser.id;lastSavedAt=data.updated_at||null;
+      cloudLoadState="loaded";
       setStatus(currentProfile?.display_name||currentUser.email||"Synced",true);
-    }catch(e){console.warn("Cloud load failed",e);setStatus("Cloud load failed",false)}finally{syncing=false}
+    }catch(e){cloudLoadState="failed";cloudLoadError=e?.message||String(e);console.warn("Cloud load failed",e);setStatus("Cloud load failed",false)}finally{syncing=false}
   }
   async function loadCloudIdentity(forceProgress=false){
     if(!client)return;const {data:{session}}=await client.auth.getSession();currentUser=session?.user||null;
@@ -72,7 +77,7 @@
   function renderCloudAccount(){
     const body=document.getElementById("cloudAccountBody");if(!body)return;
     if(currentUser){
-      body.innerHTML=`<div class="cloud-connected-card"><div class="cloud-check">✓</div><h3>Cloud sync active</h3><p><b>${esc(currentProfile?.display_name||"Learner")}</b></p><p class="cloud-small">${esc(currentUser.email||"")}</p><p class="cloud-small">Role: ${esc(currentProfile?.role||"student")}</p><div class="cloud-safe-note">Progress is now saved to this cloud account. This device keeps an offline copy and catches up when the connection returns.</div><div id="cloudMessage" class="cloud-message good">${navigator.onLine?"Cloud progress loaded ✓":"Offline copy active"}</div><button id="cloudSaveNow" class="cloud-primary" type="button">SAVE NOW</button><button id="cloudSignOut" class="cloud-secondary" type="button">SIGN OUT</button></div>`;
+      body.innerHTML=`<div class="cloud-connected-card"><div class="cloud-check">✓</div><h3>Cloud sync active</h3><p><b>${esc(currentProfile?.display_name||"Learner")}</b></p><p class="cloud-small">${esc(currentUser.email||"")}</p><p class="cloud-small">Role: ${esc(currentProfile?.role||"student")}</p><div class="cloud-safe-note">Progress is now saved to this cloud account. This device keeps an offline copy and catches up when the connection returns.</div><div id="cloudMessage" class="cloud-message ${cloudLoadState==="loaded"?"good":cloudLoadState==="failed"?"error":""}">${!navigator.onLine?"Offline copy active":cloudLoadState==="loaded"?"Cloud progress loaded ✓":cloudLoadState==="failed"?`Cloud load failed: ${esc(cloudLoadError)}`:"Checking cloud progress…"}</div><button id="cloudSaveNow" class="cloud-primary" type="button">SAVE NOW</button><button id="cloudSignOut" class="cloud-secondary" type="button">SIGN OUT</button></div>`;
       document.getElementById("cloudSaveNow").onclick=async()=>{message("Saving…");await saveNow();message("Cloud save complete ✓","good")};document.getElementById("cloudSignOut").onclick=signOut;return;
     }
     body.innerHTML=`<div class="cloud-tabs"><button id="cloudTabSignIn" class="active" type="button">Sign in</button><button id="cloudTabCreate" type="button">Create account</button></div><div id="cloudForm"></div>`;showSignInForm();document.getElementById("cloudTabSignIn").onclick=showSignInForm;document.getElementById("cloudTabCreate").onclick=showCreateForm;
@@ -80,7 +85,7 @@
   function activateTab(create){document.getElementById("cloudTabSignIn")?.classList.toggle("active",!create);document.getElementById("cloudTabCreate")?.classList.toggle("active",create)}
   function showSignInForm(){activateTab(false);const f=document.getElementById("cloudForm");if(!f)return;f.innerHTML='<label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="current-password" minlength="8"></label><button id="cloudSignIn" class="cloud-primary" type="button">SIGN IN</button><div id="cloudMessage" class="cloud-message"></div>';document.getElementById("cloudSignIn").onclick=()=>{const e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value;if(!e||p.length<8)return message("Enter your email and password (8+ characters).","error");signIn(e,p)}}
   function showCreateForm(){activateTab(true);const f=document.getElementById("cloudForm");if(!f)return;const n=document.getElementById("profileName")?.textContent?.trim()||"Learner";f.innerHTML=`<label class="cloud-label">Display name<input id="cloudDisplayName" type="text" maxlength="40" value="${esc(n)}" autocomplete="nickname"></label><label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="new-password" minlength="8"></label><button id="cloudCreate" class="cloud-primary" type="button">CREATE STUDENT ACCOUNT</button><div id="cloudMessage" class="cloud-message"></div><p class="cloud-small">New cloud learners start fresh. Progress then follows their account across devices.</p>`;document.getElementById("cloudCreate").onclick=()=>{const n=document.getElementById("cloudDisplayName").value.trim(),e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value;if(!n||!e||p.length<8)return message("Enter a name, email and password of at least 8 characters.","error");signUp(e,p,n)}}
-  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.11B.2</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});await loadCloudIdentity();renderCloudAccount()}
+  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.11B.2.1</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});await loadCloudIdentity();renderCloudAccount()}
   async function init(){ensureUi();if(!window.supabase?.createClient){setStatus("Offline / cloud unavailable",false);return}client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((_event,session)=>{setTimeout(async()=>{const next=session?.user?.id||null;if(next!==currentUser?.id)loadedUserId=null;await loadCloudIdentity(true)},0)});window.addEventListener("online",()=>{if(currentUser){loadCloudIdentity(true).then(()=>{if(pendingSave)saveNow()})}});try{await loadCloudIdentity(true)}catch(e){console.warn("Cloud account check failed",e)}}
   window.showCloudAccount=showCloudAccount;window.addEventListener("DOMContentLoaded",init);
 })();
