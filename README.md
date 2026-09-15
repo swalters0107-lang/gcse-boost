@@ -1,10 +1,10 @@
-# LevelUp10 V0.22.5 — All-Subject Hierarchical Mastery
+# LevelUp10 GCSE Boost — V0.22.6
 
-Evidence-weighted mastery is now applied consistently across every GCSE Boost subject.
+Science MCQ distractor quality repair.
 
-- Question results feed skill mastery.
-- Skill mastery rolls up into curriculum-area mastery.
-- Curriculum-area mastery rolls up into subject mastery.
-- Progress cards show mastery separately from recent answer accuracy.
-- Existing adaptive question selection continues to use skill-level evidence across all subjects.
-- Existing learner history is retained.
+- Removes the three generic placeholder Science distractors at runtime.
+- Replaces them with plausible curriculum statements drawn from the same Science topic first, then the same discipline.
+- Preserves the correct answer position, question metadata, adaptive selection and mastery history.
+- Retains V0.22.5 all-subject hierarchical mastery.
+
+Deploy all files in this ZIP to the repository root.

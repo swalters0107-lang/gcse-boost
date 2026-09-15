@@ -379,7 +379,47 @@ function questionFingerprint(q){let stem=norm(q.q||q.prompt||"").replace(/\b(?:s
 function recentFingerprints(limit=100){return new Set((state.served||[]).slice(-limit).map(x=>x.fp))}
 function recordServed(q){if(!state.served)state.served=[];state.served.push({fp:questionFingerprint(q),pattern:varietyPattern(q),subject:q.subject,topic:q.topic,category:categoryFor(q),date:Date.now()});state.served=state.served.slice(-600);save()}
 function diversePick(pool,count){let recent=recentFingerprints(100),seenPatterns=new Set(),seenQuestions=new Set(),out=[],sh=[...pool].sort(()=>Math.random()-.5);for(const q of sh){let fp=questionFingerprint(q),exact=norm(q.prompt)+"|"+(q.topic||"");if(seenPatterns.has(fp)||recent.has(fp)||seenQuestions.has(exact))continue;seenPatterns.add(fp);seenQuestions.add(exact);out.push(q);if(out.length>=count)break}if(out.length<count){for(const q of sh){let exact=norm(q.prompt)+"|"+(q.topic||"");if(seenQuestions.has(exact))continue;seenQuestions.add(exact);out.push(q);if(out.length>=count)break}}return out}
-function normalise(q){const x={...q};x.prompt=q.q||q.question||q.prompt||"Question";x.choices=Array.isArray(q.a)?q.a:(Array.isArray(q.options)?q.options:(Array.isArray(q.answers)?q.answers:(Array.isArray(q.choices)?q.choices:[])));x.kind=x.choices.length>=2?"mcq":(q.type==="typed_text"||q.type==="written"?"written":"short");if(x.kind==="mcq"){if(typeof q.correct==="number")x.correctIndex=q.correct;else{x.correctIndex=x.choices.findIndex(v=>closeText(v,q.correct??q.answer));}}x.expected=q.answer??q.correctAnswer??(x.kind==="mcq"?x.choices[x.correctIndex]:q.correct);x.explanation=q.why||q.explanation||q.explain||"";return x}
+// V0.22.6 — Science MCQ distractor quality repair.
+// The original structured Science bank contained placeholder distractors that made
+// otherwise useful questions trivial. Build plausible misconceptions from nearby
+// curriculum statements in the same topic/discipline, while keeping the original
+// correct answer, order and adaptive/mastery metadata intact.
+const V0226_BAD_SCIENCE_DISTRACTORS=new Set([
+ "It is true only when no particles are present",
+ "It always means the opposite under GCSE conditions",
+ "It depends only on the colour of the apparatus"
+]);
+const V0226_SCIENCE_FACTS=(()=>{
+ const byTopic=new Map(),byDiscipline=new Map();
+ for(const q of BANK){
+  if(q.subject!=="Science"||!Array.isArray(q.a)||typeof q.correct!=="number")continue;
+  const correct=q.a[q.correct];
+  if(!correct||V0226_BAD_SCIENCE_DISTRACTORS.has(correct))continue;
+  const tk=(q.discipline||"")+"|"+(q.topic||"");
+  if(!byTopic.has(tk))byTopic.set(tk,[]);
+  if(!byTopic.get(tk).includes(correct))byTopic.get(tk).push(correct);
+  const dk=q.discipline||"Science";
+  if(!byDiscipline.has(dk))byDiscipline.set(dk,[]);
+  if(!byDiscipline.get(dk).includes(correct))byDiscipline.get(dk).push(correct);
+ }
+ return {byTopic,byDiscipline};
+})();
+function v0226ScienceDistractors(q,correct){
+ const tk=(q.discipline||"")+"|"+(q.topic||"");
+ const candidates=[...(V0226_SCIENCE_FACTS.byTopic.get(tk)||[]),...(V0226_SCIENCE_FACTS.byDiscipline.get(q.discipline||"Science")||[])];
+ const out=[];
+ for(const fact of candidates){if(fact!==correct&&!out.includes(fact)){out.push(fact);if(out.length===3)break}}
+ return out;
+}
+function v0226RepairScienceChoices(q,choices,correctIndex){
+ if(q.subject!=="Science"||!choices.some(v=>V0226_BAD_SCIENCE_DISTRACTORS.has(v)))return {choices,correctIndex};
+ const correct=choices[correctIndex];
+ const replacements=v0226ScienceDistractors(q,correct);
+ let ri=0;
+ const repaired=choices.map((v,i)=>i===correctIndex?v:(V0226_BAD_SCIENCE_DISTRACTORS.has(v)?(replacements[ri++]||v):v));
+ return {choices:repaired,correctIndex};
+}
+function normalise(q){const x={...q};x.prompt=q.q||q.question||q.prompt||"Question";x.choices=Array.isArray(q.a)?[...q.a]:(Array.isArray(q.options)?[...q.options]:(Array.isArray(q.answers)?[...q.answers]:(Array.isArray(q.choices)?[...q.choices]:[])));x.kind=x.choices.length>=2?"mcq":(q.type==="typed_text"||q.type==="written"?"written":"short");if(x.kind==="mcq"){if(typeof q.correct==="number")x.correctIndex=q.correct;else{x.correctIndex=x.choices.findIndex(v=>closeText(v,q.correct??q.answer));}const repaired=v0226RepairScienceChoices(q,x.choices,x.correctIndex);x.choices=repaired.choices;x.correctIndex=repaired.correctIndex;}x.expected=q.answer??q.correctAnswer??(x.kind==="mcq"?x.choices[x.correctIndex]:q.correct);x.explanation=q.why||q.explanation||q.explain||"";return x}
 
 const CATEGORY_GROUPS={
  "Maths":{"Number":["Number","Division"],"Algebra":["Algebra","Graphs","Quadratics","Functions","Simultaneous equations"],"Ratio, Proportion & Rates of Change":["Percentages","Ratio","Proportion","Rates of change"],"Geometry & Measures":["Area","Pythagoras","Geometry","Measures","Trigonometry","Vectors","Bearings","Transformations"],"Probability":["Probability"],"Statistics":["Statistics"]},
