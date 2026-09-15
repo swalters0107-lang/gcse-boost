@@ -1,8 +1,12 @@
-# LevelUp10 V0.21.1 — Repeat Protection & Mastery Calibration
+# LevelUp10 V0.21.1.1 — Deployment Repair
 
-- Prevents recently served question fingerprints from being selected again while unseen questions remain.
-- Broadens from a selected curriculum area to the subject before allowing an old repeat.
-- Stores question fingerprints in mastery history so repeated items cannot inflate future skill mastery.
-- Calibrates curriculum-area mastery so one perfect 8-question mission cannot immediately mark a whole unit Mastered.
-- Replaces the browser achievement alert with a non-blocking in-app reward toast.
-- Retains V0.21.0 skill mastery/progression and mobile spacing patch.
+Deployment repair for V0.21.1.
+
+- Retains V0.21.1 repeat-question protection.
+- Retains recalibrated mastery progression.
+- Retains non-blocking achievement notifications.
+- Forces fresh app assets and service-worker update checks.
+- Navigation uses network-first/no-store so a new GitHub Pages release is picked up promptly.
+- Adds a small live build badge: **V0.21.1.1**. This is the deployment verification marker.
+
+After deployment, open LevelUp10 and confirm **V0.21.1.1** appears at the bottom-right of the app.
