@@ -1,7 +1,10 @@
-# LevelUp10 V0.22.0 — Universal Mastery Engine
+# LevelUp10 V0.22.5 — All-Subject Hierarchical Mastery
 
-Deploy all files in this package to the GitHub Pages repository root.
+Evidence-weighted mastery is now applied consistently across every GCSE Boost subject.
 
-The universal mastery engine now applies the V0.21.x evidence/status model across all GCSE Boost curriculum screens, including Maths, Science and English. Existing learner history is retained and migrated where possible.
-
-See README-V0.22.0.md for release details.
+- Question results feed skill mastery.
+- Skill mastery rolls up into curriculum-area mastery.
+- Curriculum-area mastery rolls up into subject mastery.
+- Progress cards show mastery separately from recent answer accuracy.
+- Existing adaptive question selection continues to use skill-level evidence across all subjects.
+- Existing learner history is retained.

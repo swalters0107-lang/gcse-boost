@@ -1,4 +1,4 @@
-const CACHE="levelup10-v0224";
+const CACHE="levelup10-v0225";
 const ASSETS=["./","./index.html","./gcse-boost-b421.css?v=0222","./cloud-auth.css?v=0222","./app.js?v=0222","./fix-v011a29.js?v=011a29","./fix-v011a29-2.js?v=011a292","./cloud-auth.js?v=0222","./manifest.json","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
