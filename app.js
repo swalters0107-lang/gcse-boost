@@ -516,6 +516,10 @@ function curriculumSkillFor(q){
  const skills=(curriculumMap[area]||[]);
  if(!skills.length)return raw;
  const norm=x=>String(x||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g," ").trim();
+ // V0.22.9 — Science cards display the AQA specification topics (q.topic), while
+ // q.skill is a finer sub-skill such as Microscopy or Nervous system. Mastery and
+ // rotation must therefore key evidence to the displayed specification topic.
+ if(subject==="Science"&&q.topic){const topicMatch=skills.find(x=>norm(x)===norm(q.topic));if(topicMatch)return topicMatch;}
  const r=norm(raw);
  let exact=skills.find(x=>norm(x)===r);if(exact)return exact;
  if(subject==="Sport Science"){
@@ -694,7 +698,7 @@ function choose(subject,n=8,category="All"){
  // every least-seen skill before returning to weakness targeting. With an 8-question Biology
  // mission this means all 7 Biology topics can be represented before any repeat.
  if(category!=="All"&&p.length){
-   const areaSkills=[...new Set(p.map(q=>curriculumSkillFor(q)).filter(Boolean))];
+   const areaSkills=[...new Set(p.map(q=>subject==="Science"?(q.topic||curriculumSkillFor(q)):curriculumSkillFor(q)).filter(Boolean))];
    const rankedSkills=areaSkills.map(skill=>{
      const m=masteryEvidence(subject,category,skill);
      return {skill,attempts:m.attempts,progress:masteryDisplayProgress(m,true),tie:Math.random()};
