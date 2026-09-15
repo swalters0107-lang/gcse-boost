@@ -1,0 +1,9 @@
+-- RETIRED FOR THIS BUILD.
+-- Your live LevelUp10 database already uses:
+--   profiles.role (account_role enum: student / parent / teacher)
+--   parent_link_codes
+--   parent_student_links
+--   generate_parent_link_code()
+--   redeem_parent_link_code(text)
+-- Do NOT create guardian_learner_links.
+-- For V0.23.1 run supabase_v0231_parent_dashboard.sql instead.
