@@ -1,10 +1,11 @@
-# LevelUp10 GCSE Boost — V0.22.6
+# LevelUp10 V0.23.1.1 — Account Recovery Fix
 
-Science MCQ distractor quality repair.
+Build based on V0.23.1 Parent Accounts.
 
-- Removes the three generic placeholder Science distractors at runtime.
-- Replaces them with plausible curriculum statements drawn from the same Science topic first, then the same discipline.
-- Preserves the correct answer position, question metadata, adaptive selection and mastery history.
-- Retains V0.22.5 all-subject hierarchical mastery.
+## Fixes
+- Adds **SIGN OUT / USE ANOTHER ACCOUNT** to the platform-connection error screen.
+- Recovery sign-out bypasses student progress saving so a deleted/incomplete account cannot trap the user.
+- Detects a missing `profiles` row explicitly before treating an account as a student.
+- Bumps the PWA/service-worker cache to `levelup10-v02311` so the fix deploys cleanly.
 
-Deploy all files in this ZIP to the repository root.
+No Supabase schema change is required for this recovery fix. The V0.23.1 parent dashboard SQL remains the current parent-dashboard migration.
