@@ -1,11 +1,10 @@
-# LevelUp10 V0.23.1.1 — Account Recovery Fix
+# LevelUp10 V0.23.1.2 — Parent Registration Fix
 
-Build based on V0.23.1 Parent Accounts.
+Fixes account-role creation so Student, Parent and Teacher selections are persisted to `profiles.role`.
 
-## Fixes
-- Adds **SIGN OUT / USE ANOTHER ACCOUNT** to the platform-connection error screen.
-- Recovery sign-out bypasses student progress saving so a deleted/incomplete account cannot trap the user.
-- Detects a missing `profiles` row explicitly before treating an account as a student.
-- Bumps the PWA/service-worker cache to `levelup10-v02311` so the fix deploys cleanly.
+## Required Supabase step
+Run `supabase_v02312_role_registration_fix.sql` once before creating a new Parent or Teacher account.
 
-No Supabase schema change is required for this recovery fix. The V0.23.1 parent dashboard SQL remains the current parent-dashboard migration.
+The app now verifies the database role immediately after sign-up and shows an explicit error instead of silently opening the wrong account type.
+
+V0.23.1 Parent linking and V0.23.1.1 recovery behaviour are retained.
