@@ -272,3 +272,5 @@ body[class*="app-theme-"] .stats>div{
 /* V0.21.3 course option repair */
 .course-option.course-fixed{display:flex;align-items:center;gap:14px;opacity:.82;background:#f5f6f8}
 .course-option span small{display:block;font-weight:500;color:#6b7280;margin-top:3px}
+
+/* V0.21.4 skill evidence attribution */
