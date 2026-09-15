@@ -688,6 +688,27 @@ function choose(subject,n=8,category="All"){
  function score(q){let fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice",v=Math.random()*10+skillMasteryScore(q);if(recentFP.has(fp))v-=1000;if(recentPatterns.has(pat))v-=100;if(usedFP.has(fp))v-=2000;if(usedPatterns.has(pat))v-=120;v-=(topicCounts.get(topic)||0)*28;return v}
  function take(group,count){let g=fresh(group);while(count>0&&g.length){g.sort((a,b)=>score(b)-score(a));let q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";if(usedFP.has(fp))continue;out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--}}
  if(category==="All"){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0],fp=questionFingerprint(q);out.push(q);usedFP.add(fp);usedPatterns.add(varietyPattern(q));topicCounts.set(q.topic||"Practice",1)}}}
+ // V0.22.7 — coverage-first topic rotation inside a selected curriculum area.
+ // Previously the mastery score could keep choosing the same weak/started skill (for example
+ // Biology → Homeostasis) while untouched skills remained New. A selected area now samples
+ // every least-seen skill before returning to weakness targeting. With an 8-question Biology
+ // mission this means all 7 Biology topics can be represented before any repeat.
+ if(category!=="All"&&p.length){
+   const areaSkills=[...new Set(p.map(q=>curriculumSkillFor(q)).filter(Boolean))];
+   const rankedSkills=areaSkills.map(skill=>{
+     const m=masteryEvidence(subject,category,skill);
+     return {skill,attempts:m.attempts,progress:masteryDisplayProgress(m,true),tie:Math.random()};
+   }).sort((a,b)=>a.attempts-b.attempts||a.progress-b.progress||a.tie-b.tie);
+   for(const row of rankedSkills){
+     if(out.length>=n)break;
+     let g=fresh(p.filter(q=>curriculumSkillFor(q)===row.skill));
+     if(!g.length)g=p.filter(q=>curriculumSkillFor(q)===row.skill&&!usedFP.has(questionFingerprint(q)));
+     if(!g.length)continue;
+     g.sort((a,b)=>score(b)-score(a));
+     const q=g[0],fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";
+     out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);
+   }
+ }
  let remaining=()=>n-out.length,mc=missionMCQPool(subject,p),sh=p.filter(q=>q.kind==="short"),wr=p.filter(q=>q.kind==="written");
  take(mc,Math.max(0,Math.min(5,remaining())));take(sh,Math.min(2,remaining()));take(wr,Math.min(1,remaining()));take(p,remaining());
  // V0.22.2 — a chosen curriculum area is a hard boundary. Never broaden into another area.
