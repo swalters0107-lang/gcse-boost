@@ -1,13 +1,7 @@
-# LevelUp10 V0.21.4 — Per-Skill Evidence Tracking
+# LevelUp10 V0.22.0 — Universal Mastery Engine
 
-This patch keeps the existing unit-level mastery but correctly attributes each new answer to the curriculum skill shown in the expanded cards.
+Deploy all files in this package to the GitHub Pages repository root.
 
-## Fixes
-- Sport Science questions now roll up into the visible R180/R181/R182/R183 skill rows.
-- Historical answers are only migrated when the saved question can be matched back to a real bank question.
-- New answers store the canonical curriculum skill.
-- Unit mastery remains independent from skill mastery.
-- Untested skills remain New rather than inheriting the whole-unit percentage.
-- Adaptive question scoring now uses the same canonical skill bucket.
+The universal mastery engine now applies the V0.21.x evidence/status model across all GCSE Boost curriculum screens, including Maths, Science and English. Existing learner history is retained and migrated where possible.
 
-Build/cache version: V0.21.4.
+See README-V0.22.0.md for release details.
