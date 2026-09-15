@@ -1,9 +1,10 @@
-# LevelUp10 V0.20.2 — Question Bank Quality Repair
+# LevelUp10 GCSE Boost — V0.21.0
 
-Quality repair built from the confirmed V0.20.1 full-curriculum baseline.
+Skill Mastery & Progression release.
 
-- Replaced 594 generic placeholder MCQ distractor sets with subject/curriculum-area alternatives.
-- Balanced the correct-answer position deterministically across repaired MCQs.
-- Removed 63 repeated Science required-practical “Version 2/3/4” clones, retaining one core question per practical activity rather than inflating the bank with duplicate templates.
-- Preserves the V0.20.1 curriculum coverage layer, course selectors, LevelUp10 identity/cloud sync, mission resume, Dragon, shop and progression behaviour.
-- Deployment package intentionally contains only current runtime files plus this README.
+- Adds New / Developing / Secure / Mastered evidence at curriculum-area and skill level.
+- Mission selection now prioritises weaker and under-practised skills inside the existing adaptive subject engine.
+- New answer history records skill, curriculum area and difficulty for future progression evidence.
+- Existing learner history remains compatible; mastery builds naturally as new questions are answered.
+- Tightens mobile curriculum button/card spacing across the remaining-subject curriculum screens.
+- No question-bank expansion in this release.
