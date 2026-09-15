@@ -268,3 +268,7 @@ body[class*="app-theme-"] .stats>div{
 
 /* V0.21.2 topic/skill mastery presentation */
 .curriculum-page .curriculum-skills{display:grid!important;grid-template-columns:1fr!important}.curriculum-page .curriculum-skill-mastery{background:#f7f8fa!important;border:1px solid #e5e7eb;border-radius:12px!important;padding:9px 11px!important}.curriculum-page .curriculum-skill-mastery>b{font-size:.88rem!important;line-height:1.2}.curriculum-page details[open] summary{margin-bottom:4px}.curriculum-page details[open] summary::after{content:" · progress by skill";font-size:.72rem;font-weight:600;color:#6b7280}
+
+/* V0.21.3 course option repair */
+.course-option.course-fixed{display:flex;align-items:center;gap:14px;opacity:.82;background:#f5f6f8}
+.course-option span small{display:block;font-weight:500;color:#6b7280;margin-top:3px}
