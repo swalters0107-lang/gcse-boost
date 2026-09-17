@@ -567,23 +567,56 @@ function externalMasteryEvidence(sourceState,subject,area=null,skill=null){const
 function externalSubjectMasterySummary(sourceState,subject){const areas=subjectCurriculumAreas(subject);if(!areas.length){const m=externalMasteryEvidence(sourceState,subject,null,null);return{...m,progress:masteryDisplayProgress(m,false)}}let attempts=0,totalProgress=0;for(const area of areas){const skills=curriculumSkillsForArea(subject,area);if(!skills.length){const m=externalMasteryEvidence(sourceState,subject,area,null);attempts+=m.attempts;totalProgress+=masteryDisplayProgress(m,false);continue}let areaAttempts=0,areaProgress=0;for(const skill of skills){const m=externalMasteryEvidence(sourceState,subject,area,skill);areaAttempts+=m.attempts;areaProgress+=masteryDisplayProgress(m,true)}attempts+=areaAttempts;totalProgress+=Math.round(areaProgress/skills.length)}return{attempts,progress:Math.round(totalProgress/areas.length)}}
 window.gcseBoostSummariseStudentProgress=function(sourceState,xp){
  const raw=sourceState&&typeof sourceState==="object"?sourceState:{};
- // V0.23.1.7 parent compatibility: use the same evidence regardless of which
- // historical cloud-state wrapper an older learner row was saved with.
  const nestedCandidates=[raw.state,raw.learning_state,raw.learningState,raw.progress,raw.data].filter(x=>x&&typeof x==="object");
  const nestedWithHistory=nestedCandidates.find(x=>Array.isArray(x.history)&&x.history.length);
  const source=(Array.isArray(raw.history)&&raw.history.length)?raw:(nestedWithHistory?{...raw,...nestedWithHistory}:raw);
+ const history=Array.isArray(source.history)?source.history:[];
  const level=Math.max(1,Math.floor((Number(xp)||Number(source.xp)||0)/250)+1);
  const subjects=["Maths","English","Science","History","Geography","German","Drama","Citizenship","Sport Science","Catering","Spanish","RE"];
+
+ // Parent views must work from the canonical history rows themselves. Older cloud
+ // rows do not necessarily contain the curriculumArea/skill fields added later by
+ // the learner-side migration, but they always contain subject/topic/correct.
  const subjectProgress=subjects.map(subject=>{
-   const m=externalSubjectMasterySummary(source,subject);
+   const rows=history.filter(x=>x&&x.subject===subject).slice(-40);
+   const attempts=rows.length;
+   const correct=rows.filter(x=>x.correct===true||x.ok===true).length;
+   const accuracy=attempts?Math.round(correct*100/attempts):0;
+   const distinctTopics=new Set(rows.map(x=>x.topic||x.skill).filter(Boolean)).size;
+   const distinctQuestions=new Set(rows.map(x=>x.fp||x.question||x.q).filter(Boolean)).size;
+   const avgDifficulty=attempts?rows.reduce((n,x)=>n+(Number(x.difficulty||x.grade)||4),0)/attempts:0;
+
    let levelName="New";
-   if(m.attempts>0)levelName="Developing";
-   if((m.progress||0)>=70)levelName="Secure";
-   if((m.progress||0)>=90)levelName="Mastered";
-   const recent=((source.history)||[]).filter(x=>x.subject===subject).slice(-20);
-   const correct=recent.filter(x=>x.correct===true||x.ok===true).length;
-   return {subject,attempts:m.attempts||0,progress:m.progress||0,level:levelName,
-           accuracy:recent.length?Math.round(correct*100/recent.length):0};
+   if(attempts>0)levelName="Developing";
+   if(attempts>=8&&accuracy>=70&&distinctTopics>=2)levelName="Secure";
+   if(attempts>=20&&accuracy>=85&&avgDifficulty>=4.5&&distinctTopics>=4)levelName="Mastered";
+
+   // Evidence-weighted progress, matching the learner app's subject-level concept:
+   // early high accuracy cannot immediately display as full mastery.
+   const progress=attempts?Math.round(accuracy*Math.min(1,attempts/20)):0;
+
+   let gradeLabel="Building…",gradeDetail=`${attempts}/8 answers for first estimate`;
+   if(attempts>=8){
+     if(subject==="Sport Science"||subject==="Catering"){
+       gradeLabel=accuracy>=85?"Distinction*":accuracy>=75?"Distinction":accuracy>=65?"Merit":accuracy>=50?"Pass":"Working towards Pass";
+       gradeDetail=`${accuracy}% recent accuracy`;
+     }else{
+       let best=3;
+       for(let g=4;g<=9;g++){
+         const evidence=rows.filter(x=>(Number(x.grade)||4)>=g);
+         const acc=evidence.length?evidence.filter(x=>x.correct===true||x.ok===true).length/evidence.length:0;
+         if(evidence.length>=4&&acc>=.65)best=g;
+       }
+       if(best<4&&accuracy>=55)best=4;
+       const tier=(source.tiers||{})[subject];
+       if(["Maths","Science"].includes(subject)&&tier!=="Higher")best=Math.min(5,best);
+       gradeLabel=String(Math.max(3,Math.min(9,best)));
+       gradeDetail=`Based on ${attempts} recent answers · ${accuracy}% accuracy`;
+     }
+   }
+
+   return {subject,attempts,progress,level:levelName,accuracy,gradeLabel,gradeDetail,
+           distinctTopics,distinctQuestions,avgDifficulty};
  });
  const attempted=subjectProgress.filter(x=>x.attempts>0);
  const masteryAvg=attempted.length?Math.round(attempted.reduce((n,x)=>n+x.progress,0)/attempted.length):null;
