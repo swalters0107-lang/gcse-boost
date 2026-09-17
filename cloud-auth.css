@@ -21,3 +21,14 @@
 .cloud-progress-subject small{display:block;margin-top:6px;font-size:.75rem;opacity:.65}
 .cloud-progress-bar{height:8px;background:#eceef2;border-radius:999px;overflow:hidden;margin-top:8px}
 .cloud-progress-bar i{display:block;height:100%;background:currentColor;border-radius:999px;opacity:.7}
+
+/* V0.23.1.6 — account-role shell. Parents/teachers never use learner Home. */
+.levelup10-role-shell{position:fixed;inset:0;z-index:2147483000;background:#f7f7f9;color:#202638;overflow:auto;-webkit-overflow-scrolling:touch}
+.role-shell-page{width:min(760px,100%);margin:0 auto;min-height:100%;padding:calc(24px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));box-sizing:border-box}
+.role-shell-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}
+.role-shell-head small{font-weight:900;letter-spacing:.12em;color:#6943bd}.role-shell-head h1{font-size:2rem;margin:4px 0 4px}.role-shell-head p{margin:0;opacity:.7}
+.role-shell-head button{border:1px solid #d7d8df;background:white;border-radius:14px;padding:11px 14px;font-weight:800;color:#202638}
+.role-shell-content,.role-shell-link{background:white;border:1px solid #e1e2e7;border-radius:24px;padding:18px;margin-bottom:18px;box-shadow:0 8px 26px rgba(25,31,50,.06)}
+.role-shell-link h2,.role-shell-empty h2{margin-top:0}.role-shell-link p,.role-shell-empty p{opacity:.7;line-height:1.45}
+.role-student-card{margin:0 0 16px}.role-shell-empty{padding:14px 4px}
+@media(max-width:520px){.role-shell-page{padding-left:14px;padding-right:14px}.role-shell-head h1{font-size:1.65rem}.role-shell-head{align-items:center}.role-shell-head p{font-size:.85rem}}

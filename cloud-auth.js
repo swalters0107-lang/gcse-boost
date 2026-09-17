@@ -1,4 +1,4 @@
-/* LevelUp10 V0.23.1.5 — Account Recovery Fix
+/* LevelUp10 V0.23.1.6 — Account Recovery Fix
    Supabase is the signed-in learner's source of truth.
    Local storage remains an offline cache. Existing test-only local progress is not migrated.
 */
@@ -108,7 +108,7 @@
   async function loadCloudIdentity(forceProgress=false){
     if(!client)return;const {data:{session}}=await client.auth.getSession();currentUser=session?.user||null;
     if(!currentUser){currentProfile=null;currentIdentity=null;currentGcseProfile=null;platformReady=false;loadedUserId=null;setStatus("Not signed in",false);return}
-    await fetchProfile();if(!currentProfile)throw new Error("No LevelUp10 profile exists for this account");await fetchLevelUp10Identity();const role=currentProfile?.role||"student";if(role==="student"||role==="learner"){await ensureLevelUp10Platform();setStatus(currentProfile?.display_name||currentUser.email||"Connected",true);await loadCloudProgress(forceProgress);}else{platformReady=true;loadedUserId=null;setStatus(`${currentProfile?.display_name||currentUser.email} · ${role}`,true);}
+    await fetchProfile();if(!currentProfile)throw new Error("No LevelUp10 profile exists for this account");await fetchLevelUp10Identity();const role=currentProfile?.role||"student";if(role==="student"||role==="learner"){await ensureLevelUp10Platform();setStatus(currentProfile?.display_name||currentUser.email||"Connected",true);await loadCloudProgress(forceProgress);}else{platformReady=true;loadedUserId=null;setStatus(`${currentProfile?.display_name||currentUser.email} · ${role}`,true);}routeAccountShell();
   }
 
   function payloadFromApp(){
@@ -132,7 +132,7 @@
   window.gcseCloudQueueSave=queueSave;
 
   async function signIn(email,password){message("Signing in…");const {error}=await client.auth.signInWithPassword({email,password});if(error)return message(error.message,"error");loadedUserId=null;await loadCloudIdentity(true);renderCloudAccount()}
-  async function signUp(email,password,displayName,requestedRole="student"){message(`Creating ${requestedRole} account…`);const {data,error}=await client.auth.signUp({email,password,options:{data:{display_name:displayName||"Learner",avatar:window.gcseBoostPendingAvatar||"🎓",requested_role:requestedRole}}});if(error)return message(error.message,"error");if(!data.session)return message(`Account created as ${requestedRole}. Check your email to confirm it, then sign in.`,"good");loadedUserId=null;await fetchProfile();if(!currentProfile)return message("Account authentication was created, but the LevelUp10 profile is missing. Please sign out and try again.","error");if(currentProfile.role!==requestedRole){console.error("LevelUp10 role verification failed",{requestedRole,actualRole:currentProfile.role});return message(`Account role setup failed: requested ${requestedRole}, database returned ${currentProfile.role}. Run the V0.23.1.5 Supabase migration before creating accounts.`,"error")}await loadCloudIdentity(true);renderCloudAccount()}
+  async function signUp(email,password,displayName,requestedRole="student"){message(`Creating ${requestedRole} account…`);const {data,error}=await client.auth.signUp({email,password,options:{data:{display_name:displayName||"Learner",avatar:window.gcseBoostPendingAvatar||"🎓",requested_role:requestedRole}}});if(error)return message(error.message,"error");if(!data.session)return message(`Account created as ${requestedRole}. Check your email to confirm it, then sign in.`,"good");loadedUserId=null;await fetchProfile();if(!currentProfile)return message("Account authentication was created, but the LevelUp10 profile is missing. Please sign out and try again.","error");if(currentProfile.role!==requestedRole){console.error("LevelUp10 role verification failed",{requestedRole,actualRole:currentProfile.role});return message(`Account role setup failed: requested ${requestedRole}, database returned ${currentProfile.role}. Run the V0.23.1.6 Supabase migration before creating accounts.`,"error")}await loadCloudIdentity(true);renderCloudAccount()}
   async function signOut(){message("Signing out…");if(pendingSave)await saveNow();await client.auth.signOut();currentUser=null;currentProfile=null;currentIdentity=null;currentGcseProfile=null;platformReady=false;loadedUserId=null;setStatus("Not signed in",false);renderCloudAccount()}
   async function recoverySignOut(){const btn=document.getElementById("cloudRecoverySignOut");if(btn){btn.disabled=true;btn.textContent="SIGNING OUT…"}try{await client.auth.signOut({scope:"local"})}catch(e){console.warn("Recovery sign out failed",e);try{await client.auth.signOut()}catch(_){}}pendingSave=false;clearTimeout(saveTimer);currentUser=null;currentProfile=null;currentIdentity=null;currentGcseProfile=null;platformReady=false;loadedUserId=null;cloudLoadState="idle";cloudLoadError="";setStatus("Not signed in",false);renderCloudAccount()}
 
@@ -184,6 +184,83 @@
     document.getElementById("cloudBackParent").onclick=renderParentDashboard;
     host.scrollIntoView({behavior:"smooth",block:"start"});
   }
+
+  function closeRoleShell(){document.getElementById("levelup10RoleShell")?.remove()}
+  function showRoleShell(){
+    if(!currentUser||!currentProfile)return closeRoleShell();
+    const role=currentProfile.role||"student";
+    if(role==="student"||role==="learner")return closeRoleShell();
+
+    let shell=document.getElementById("levelup10RoleShell");
+    if(!shell){
+      shell=document.createElement("div");
+      shell.id="levelup10RoleShell";
+      shell.className="levelup10-role-shell";
+      document.body.appendChild(shell);
+    }
+
+    // Role shell deliberately has no close button. Parent/teacher accounts do not
+    // enter the learner Home/Profile/Shop/Mission UI.
+    if(role==="parent"){
+      shell.innerHTML=`<main class="role-shell-page"><header class="role-shell-head"><div><small>LEVELUP10</small><h1>Parent Dashboard</h1><p>${esc(currentProfile.display_name||"Parent")} · Read-only learner progress</p></div><button id="roleShellSignOut" type="button">SIGN OUT</button></header><section id="roleParentStudents" class="role-shell-content"><p>Loading linked students…</p></section><section class="role-shell-link"><h2>Link a student</h2><p>Enter the one-time Parent/Carer code shown on the student's LevelUp10 account.</p><input id="roleRedeemCode" class="cloud-code-input" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="AB12CD34"><button id="roleRedeemParentCode" class="cloud-primary" type="button">LINK STUDENT</button><div id="cloudMessage" class="cloud-message"></div></section></main>`;
+      document.getElementById("roleShellSignOut").onclick=signOutFromRoleShell;
+      document.getElementById("roleRedeemParentCode").onclick=async()=>{
+        const input=document.getElementById("roleRedeemCode"),code=input?.value?.trim();
+        if(!code||code.length<6)return message("Enter the connection code from the student.","error");
+        message("Linking student…");
+        const {error}=await client.rpc("redeem_parent_link_code",{entered_code:code});
+        if(error)return message(error.message,"error");
+        if(input)input.value="";message("Student linked ✓","good");await renderRoleParentDashboard();
+      };
+      renderRoleParentDashboard();
+    }else{
+      shell.innerHTML=`<main class="role-shell-page"><header class="role-shell-head"><div><small>LEVELUP10</small><h1>Teacher Dashboard</h1><p>${esc(currentProfile.display_name||"Teacher")}</p></div><button id="roleShellSignOut" type="button">SIGN OUT</button></header><section class="role-shell-content"><div class="role-shell-empty"><h2>Teacher account connected ✓</h2><p>Your teacher account is separate from the learner experience. Classes, join codes and read-only student progress are the next build.</p></div></section></main>`;
+      document.getElementById("roleShellSignOut").onclick=signOutFromRoleShell;
+    }
+  }
+
+  async function renderRoleParentDashboard(){
+    const host=document.getElementById("roleParentStudents");if(!host)return;
+    host.innerHTML='<p class="cloud-small">Loading linked students…</p>';
+    const {data,error}=await client.rpc("get_parent_student_summaries");
+    if(error){host.innerHTML=`<div class="cloud-message error">${esc(error.message)}</div>`;return}
+    const rows=Array.isArray(data)?data:[];
+    window.gcseParentRows=rows;
+    if(!rows.length){host.innerHTML='<div class="role-shell-empty"><h2>No students linked yet</h2><p>Ask the student to generate a Parent/Carer code, then enter it below.</p></div>';return}
+    host.innerHTML=rows.map((r,i)=>{
+      const x=summariseState(r.state,r.xp);
+      const active=(x.subjects||[]).filter(s=>s.attempts>0);
+      const preview=active.slice(0,5).map(s=>`<div class="cloud-subject-row"><span><b>${esc(s.subject)}</b><small>${s.attempts} answers · ${s.accuracy}% recent accuracy</small></span><strong>${esc(s.level)} · ${s.progress}%</strong></div>`).join("");
+      return `<article class="cloud-student-card role-student-card"><div><b>${esc(r.display_name||"Student")}</b><span>${esc(r.avatar||"🎓")}</span></div><div class="cloud-stat-grid"><div><strong>${Number(r.xp)||0}</strong><small>XP</small></div><div><strong>${Number(r.streak)||0}</strong><small>Streak</small></div><div><strong>${x.level||"—"}</strong><small>Level</small></div><div><strong>${x.masteryAvg==null?"—":x.masteryAvg+"%"}</strong><small>Mastery</small></div></div>${preview?`<div class="cloud-subject-preview">${preview}</div>`:""}<button class="cloud-secondary cloud-progress-btn" type="button" data-role-parent-row="${i}">VIEW FULL PROGRESS</button><p class="cloud-small">Read-only progress · Last updated ${r.updated_at?new Date(r.updated_at).toLocaleString():"—"}</p></article>`;
+    }).join("");
+    host.querySelectorAll("[data-role-parent-row]").forEach(btn=>btn.onclick=()=>showRoleParentProgress(Number(btn.dataset.roleParentRow)));
+  }
+
+  function showRoleParentProgress(index){
+    const r=(window.gcseParentRows||[])[index];if(!r)return;
+    const x=summariseState(r.state,r.xp),subjects=(x.subjects||[]);
+    const host=document.getElementById("roleParentStudents");if(!host)return;
+    const rows=subjects.map(s=>`<div class="cloud-progress-subject ${s.attempts?"has-evidence":""}"><div><b>${esc(s.subject)}</b><strong>${esc(s.level)}${s.attempts?" · "+s.progress+"%":""}</strong></div><div class="cloud-progress-bar"><i style="width:${Math.max(0,Math.min(100,s.progress||0))}%"></i></div><small>${s.attempts?s.attempts+" answers recorded · "+s.accuracy+"% recent accuracy":"No learning evidence yet"}</small></div>`).join("");
+    host.innerHTML=`<div class="cloud-progress-head"><button id="roleBackParent" class="cloud-secondary" type="button">← BACK TO PARENT DASHBOARD</button><h2>${esc(r.display_name||"Student")} · Full Progress</h2><p class="cloud-small">Read-only learning progress.</p></div><div class="cloud-stat-grid cloud-progress-summary"><div><strong>${Number(r.xp)||0}</strong><small>XP</small></div><div><strong>${Number(r.streak)||0}</strong><small>Streak</small></div><div><strong>${x.level||"—"}</strong><small>Level</small></div><div><strong>${x.masteryAvg==null?"—":x.masteryAvg+"%"}</strong><small>Mastery</small></div></div><div class="cloud-progress-list">${rows}</div>`;
+    document.getElementById("roleBackParent").onclick=renderRoleParentDashboard;
+    window.scrollTo(0,0);
+  }
+
+  async function signOutFromRoleShell(){
+    try{await client.auth.signOut()}catch(e){console.warn("Sign out failed",e)}
+    currentUser=null;currentProfile=null;currentIdentity=null;currentGcseProfile=null;platformReady=false;loadedUserId=null;
+    closeRoleShell();setStatus("Not signed in",false);
+    try{sessionStorage.removeItem("lu10_refresh_view")}catch(_){}
+    if(typeof window.goHome==="function")window.goHome();
+    else location.reload();
+  }
+
+  function routeAccountShell(){
+    if(!currentUser||!currentProfile)return closeRoleShell();
+    const role=currentProfile.role||"student";
+    if(role==="parent"||role==="teacher")showRoleShell();else closeRoleShell();
+  }
+
   function renderCloudAccount(){
     const body=document.getElementById("cloudAccountBody");if(!body)return;
     if(currentUser){
@@ -203,7 +280,7 @@
   function activateTab(create){document.getElementById("cloudTabSignIn")?.classList.toggle("active",!create);document.getElementById("cloudTabCreate")?.classList.toggle("active",create)}
   function showSignInForm(){activateTab(false);const f=document.getElementById("cloudForm");if(!f)return;f.innerHTML='<label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="current-password" minlength="8"></label><button id="cloudSignIn" class="cloud-primary" type="button">SIGN IN</button><div id="cloudMessage" class="cloud-message"></div>';document.getElementById("cloudSignIn").onclick=()=>{const e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value;if(!e||p.length<8)return message("Enter your email and password (8+ characters).","error");signIn(e,p)}}
   function showCreateForm(){activateTab(true);const f=document.getElementById("cloudForm");if(!f)return;const n=document.getElementById("profileName")?.textContent?.trim()||"Learner";window.gcseBoostPendingAvatar="🎓";const avatars=["🎓","🚀","⭐","🦊","🐼","🦁"];f.innerHTML=`<label class="cloud-label">Account type<select id="cloudRole" class="cloud-role-select"><option value="student">Student</option><option value="parent">Parent</option><option value="teacher">Teacher</option></select></label><label class="cloud-label"><span id="cloudNameLabel">Learner name</span><input id="cloudDisplayName" type="text" maxlength="24" value="${esc(n)}" autocomplete="nickname"></label><div id="cloudAvatarBlock" class="cloud-label">Choose an avatar<div class="cloud-avatar-picks">${avatars.map((a,i)=>`<button type="button" class="cloud-avatar-pick ${i===0?"selected":""}" data-avatar="${a}">${a}</button>`).join("")}</div></div><label class="cloud-label">Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label class="cloud-label">Password<input id="cloudPassword" type="password" autocomplete="new-password" minlength="8"></label><button id="cloudCreate" class="cloud-primary" type="button">CREATE STUDENT ACCOUNT</button><div id="cloudMessage" class="cloud-message"></div><p id="cloudRoleHelp" class="cloud-small">Learner progress follows this account across devices.</p>`;f.querySelectorAll(".cloud-avatar-pick").forEach(b=>b.onclick=()=>{f.querySelectorAll(".cloud-avatar-pick").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");window.gcseBoostPendingAvatar=b.dataset.avatar});const roleEl=document.getElementById("cloudRole"),btn=document.getElementById("cloudCreate"),label=document.getElementById("cloudNameLabel"),help=document.getElementById("cloudRoleHelp"),avatar=document.getElementById("cloudAvatarBlock");const refreshRole=()=>{const r=roleEl.value;label.textContent=r==="student"?"Student name":r==="parent"?"Parent name":"Teacher name";btn.textContent=`CREATE ${r.toUpperCase()} ACCOUNT`;help.textContent=r==="student"?"Student progress follows this account across devices.":r==="parent"?"Parent accounts will link to learner accounts without creating a second copy of progress.":"Teacher accounts will manage test classes and read-only learner progress.";avatar.style.display=r==="student"?"block":"none"};roleEl.onchange=refreshRole;refreshRole();btn.onclick=()=>{const n=document.getElementById("cloudDisplayName").value.trim(),e=document.getElementById("cloudEmail").value.trim(),p=document.getElementById("cloudPassword").value,r=roleEl.value;if(!n||!e||p.length<8)return message("Enter a name, email and password of at least 8 characters.","error");signUp(e,p,n,r)}}
-  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.23.1.5</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});try{await loadCloudIdentity();renderCloudAccount()}catch(e){console.warn("LevelUp10 platform check failed",e);cloudLoadState="failed";cloudLoadError=e?.message||String(e);const body=document.getElementById("cloudAccountBody");if(body)body.innerHTML=`<div class="cloud-connected-card"><h3>Platform connection needs attention</h3><p class="cloud-small">Your existing GCSE progress on this device is still safe.</p><div class="cloud-message error">${esc(cloudLoadError)}</div><button id="cloudRetry" class="cloud-primary" type="button">TRY AGAIN</button><button id="cloudRecoverySignOut" class="cloud-secondary" type="button">SIGN OUT / USE ANOTHER ACCOUNT</button><p class="cloud-small">Use Sign Out if this account was deleted, was created with the wrong account type, or you need to switch accounts.</p></div>`;document.getElementById("cloudRetry")?.addEventListener("click",showCloudAccount);document.getElementById("cloudRecoverySignOut")?.addEventListener("click",recoverySignOut)}}
+  async function showCloudAccount(){closeCloudAccount();const o=document.createElement("div");o.id="cloudAccountOverlay";o.className="cloud-overlay";o.innerHTML='<div class="cloud-panel" role="dialog" aria-modal="true" aria-label="Cloud account"><div class="cloud-head"><div><b>☁️ Cloud Account</b><small>V0.23.1.6</small></div><button id="cloudClose" type="button" aria-label="Close">×</button></div><div id="cloudAccountBody"><p>Checking connection…</p></div></div>';document.body.appendChild(o);document.getElementById("cloudClose").onclick=closeCloudAccount;o.addEventListener("click",e=>{if(e.target===o)closeCloudAccount()});try{await loadCloudIdentity();renderCloudAccount()}catch(e){console.warn("LevelUp10 platform check failed",e);cloudLoadState="failed";cloudLoadError=e?.message||String(e);const body=document.getElementById("cloudAccountBody");if(body)body.innerHTML=`<div class="cloud-connected-card"><h3>Platform connection needs attention</h3><p class="cloud-small">Your existing GCSE progress on this device is still safe.</p><div class="cloud-message error">${esc(cloudLoadError)}</div><button id="cloudRetry" class="cloud-primary" type="button">TRY AGAIN</button><button id="cloudRecoverySignOut" class="cloud-secondary" type="button">SIGN OUT / USE ANOTHER ACCOUNT</button><p class="cloud-small">Use Sign Out if this account was deleted, was created with the wrong account type, or you need to switch accounts.</p></div>`;document.getElementById("cloudRetry")?.addEventListener("click",showCloudAccount);document.getElementById("cloudRecoverySignOut")?.addEventListener("click",recoverySignOut)}}
   async function init(){ensureUi();if(!window.supabase?.createClient){setStatus("Offline / cloud unavailable",false);return}client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});client.auth.onAuthStateChange((_event,session)=>{setTimeout(async()=>{const next=session?.user?.id||null;if(next!==currentUser?.id)loadedUserId=null;await loadCloudIdentity(true)},0)});window.addEventListener("online",()=>{if(currentUser){loadCloudIdentity(true).then(()=>{if(pendingSave)saveNow()})}});try{await loadCloudIdentity(true)}catch(e){console.warn("Cloud account check failed",e)}}
   window.showCloudAccount=showCloudAccount;window.addEventListener("DOMContentLoaded",init);
 })();
