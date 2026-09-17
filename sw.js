@@ -1,5 +1,5 @@
-const CACHE="levelup10-v02316";
-const ASSETS=["./","./index.html","./gcse-boost-b421.css?v=02316","./cloud-auth.css?v=02316","./app.js?v=02316","./fix-v011a29.js?v=011a29","./fix-v011a29-2.js?v=011a292","./cloud-auth.js?v=02316","./manifest.json","./icon-192.png","./icon-512.png"];
+const CACHE="levelup10-v02317";
+const ASSETS=["./","./index.html","./gcse-boost-b421.css?v=02317","./cloud-auth.css?v=02317","./app.js?v=02317","./fix-v011a29.js?v=011a29","./fix-v011a29-2.js?v=011a292","./cloud-auth.js?v=02317","./manifest.json","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",e=>{

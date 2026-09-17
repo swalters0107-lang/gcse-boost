@@ -22,7 +22,7 @@
 .cloud-progress-bar{height:8px;background:#eceef2;border-radius:999px;overflow:hidden;margin-top:8px}
 .cloud-progress-bar i{display:block;height:100%;background:currentColor;border-radius:999px;opacity:.7}
 
-/* V0.23.1.6 — account-role shell. Parents/teachers never use learner Home. */
+/* V0.23.1.7 — account-role shell. Parents/teachers never use learner Home. */
 .levelup10-role-shell{position:fixed;inset:0;z-index:2147483000;background:#f7f7f9;color:#202638;overflow:auto;-webkit-overflow-scrolling:touch}
 .role-shell-page{width:min(760px,100%);margin:0 auto;min-height:100%;padding:calc(24px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));box-sizing:border-box}
 .role-shell-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}
