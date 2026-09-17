@@ -1,4 +1,4 @@
-# LevelUp10 V0.23.2.1 — Parent Progress Summary
+# LevelUp10 V0.23.2.2 — Student Class Join
 
 Parent Dashboard now derives Level from the same 250-XP level rule as the learner app and Mastery from the existing curriculum mastery evidence in the linked student cloud state. No new progress table or SQL migration is required.
 
@@ -21,3 +21,5 @@ V0.23.2.1: role-based app shell. Parent and teacher accounts route directly to t
 V0.23.2.1: Parent Full Progress now derives subject evidence directly from canonical state.history rows. It no longer depends on learner-side curriculumArea/skill migration metadata. Adds read-only grade estimates from the same history evidence.
 
 V0.23.2.1 Teacher V1: teacher-only dashboard, class creation, reusable expiring join codes, roster and read-only student progress. Student join continues through existing join_class_with_code RPC.
+
+V0.23.2.2: Student Cloud Account adds Join a Class. It calls the existing secure join_class_with_code RPC, accepts the teacher 8-character code, keeps the learner experience unchanged, and leaves teacher access read-only.

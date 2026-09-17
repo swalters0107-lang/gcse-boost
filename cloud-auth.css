@@ -40,3 +40,7 @@
 .teacher-code{min-width:190px;background:#f1ecff;border:1px solid #d9cdf7;border-radius:18px;padding:13px 16px;text-align:center}.teacher-code small,.teacher-code span{display:block}.teacher-code strong{display:block;font-size:1.55rem;letter-spacing:.12em;margin:4px 0}.teacher-code span{font-size:.75rem;opacity:.7}
 .teacher-avatar{font-size:1.7rem}.teacher-student-row{justify-content:flex-start}.teacher-student-row>strong{margin-left:auto}
 @media(max-width:560px){.teacher-toolbar,.teacher-class-head{flex-direction:column}.teacher-toolbar .cloud-primary{width:100%}.teacher-code{width:100%;box-sizing:border-box}.teacher-student-row{padding:14px 12px}}
+
+/* V0.23.2.2 — Student Class Join */
+.cloud-class-joined{margin-top:12px;text-align:center;font-weight:800;color:#1f7a3d}
+#cloudClassJoinCode{text-transform:uppercase;letter-spacing:.16em;text-align:center}
