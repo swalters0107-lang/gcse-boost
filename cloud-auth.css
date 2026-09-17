@@ -44,3 +44,8 @@
 /* V0.23.2.2 — Student Class Join */
 .cloud-class-joined{margin-top:12px;text-align:center;font-weight:800;color:#1f7a3d}
 #cloudClassJoinCode{text-transform:uppercase;letter-spacing:.16em;text-align:center}
+
+/* V0.23.3.0 first-time student baseline */
+.baseline-overlay{position:fixed;inset:0;z-index:10050;background:#f7f7fa;overflow:auto;padding:28px 18px;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center}
+.baseline-card{width:min(620px,100%);background:#fff;border:1px solid #dedee5;border-radius:28px;padding:30px 24px;box-sizing:border-box;box-shadow:0 14px 40px rgba(30,35,50,.08);margin:auto}
+.baseline-kicker{font-weight:900;letter-spacing:.12em;color:#7444bd;margin-bottom:14px}.baseline-card h1{font-size:clamp(28px,7vw,42px);line-height:1.12;margin:16px 0 22px;color:#20283a}.baseline-lead,.baseline-note,.baseline-count{color:#6d6f78;line-height:1.45}.baseline-progress{height:10px;border-radius:999px;background:#ececf1;overflow:hidden;margin:10px 0 14px}.baseline-progress i{display:block;height:100%;background:#7444bd;border-radius:999px}.baseline-answers{display:grid;gap:12px}.baseline-answers button,.baseline-primary{width:100%;border:1px solid #d9d9e1;border-radius:18px;background:#fff;padding:18px;font:inherit;font-weight:800;text-align:left;color:#20283a}.baseline-answers button:active{transform:scale(.99);background:#f1ebff}.baseline-primary{background:#202b3d;color:#fff;text-align:center;border:0;margin-top:22px}.baseline-results{display:grid;gap:12px}.baseline-results>div{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:#f5f5f8;border-radius:18px;padding:18px}.baseline-results strong{font-size:24px}.baseline-results small{grid-column:1/-1;color:#6d6f78}
