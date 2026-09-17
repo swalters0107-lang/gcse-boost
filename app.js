@@ -853,7 +853,11 @@ function profileHTML(){let rows=progressRows(),topics=topicProgress(),mastered=t
 </div><div class="profile-tab-panel active" data-profile-panel="overview"><div class="profile-hero"><button class="avatar-big decorated-avatar" onclick="editProfile()">${avatarDecorHTML(true)}</button><div><h2>${learnerName()}</h2><p>Level ${levelFromXP()} · ${state.xp||0} XP</p><button class="text-btn" onclick="editProfile()">Edit profile</button></div></div><div class="panel profile-account-panel"><h3>☁️ LevelUp10 Account</h3><p class="privacy-note">Cloud sign-in, sync and learner profiles.</p><button class="full-btn" onclick="window.showCloudAccount&&window.showCloudAccount()">☁️ Cloud account</button><button class="full-btn secondary" onclick="showAccounts()">⚙️ Switch learner / Beta</button></div><div class="stat-grid"><div class="stat-card"><b>🪙 ${coinBalance()}</b><span>Boost Coins${isTestLearner()?" · TEST":""}</span></div><div class="stat-card"><b>🔥 ${state.streak||0}</b><span>Day streak</span></div><div class="stat-card"><b>🏆 ${state.bossWins||0}</b><span>Boss wins</span></div><div class="stat-card"><b>⭐ ${state.xp||0}</b><span>Total XP</span></div><div class="stat-card"><b>✅ ${mastered}</b><span>Topics mastered</span></div></div><div class="panel"><h3>My pathway</h3><div class="path-row"><span>🧮 Maths</span><b>${tier("Maths")}</b></div><div class="path-row"><span>🧪 Science</span><b>${tier("Science")}</b></div><p class="privacy-note">Higher is an in-app learning milestone. School decides exam tier entry.</p></div></div><div class="profile-tab-panel" data-profile-panel="school">${schoolScheduleHTML()}</div>
 <div class="profile-tab-panel" data-profile-panel="grades"><div class="panel grade-panel"><h3>📊 Estimated current grades</h3><p class="privacy-note">GCSE Boost estimates based on recent accuracy and question difficulty — not an official school predicted grade.</p><div class="grade-list">${gradeCardsHTML()}</div></div></div><div class="profile-tab-panel" data-profile-panel="rewards"><div class="panel"><h3>🏆 Achievement Progress</h3><p class="privacy-note">Achievements level up automatically while you learn and award Boost Coins.</p>${achievementHTML()}</div><div class="panel"><h3>Learning snapshot</h3><div class="mini-row"><span>Strongest recent subject</span><b>${best?best.subject:"Keep practising"}</b></div><div class="mini-row"><span>Current lives</span><b>❤️ ${state.lives??3}</b></div><button class="full-btn" onclick="goProgress()">Open detailed progress →</button></div><div class="panel future-card"><h3>Friends & Battles</h3><p>Private friends, leaderboards and head-to-head challenges will connect here when cloud accounts are added.</p><div class="coming-row"><span>👥 Friends</span><b>Coming soon</b></div><div class="coming-row"><span>⚔️ Battle record</span><b>Coming soon</b></div></div></div></section>`}
 function profileTab(name,btn){document.querySelectorAll("[data-profile-panel]").forEach(x=>x.classList.toggle("active",x.dataset.profilePanel===name));document.querySelectorAll(".profile-tab").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");}
-function showProfile(){session=null;openOverlay("profileOverlay",profileHTML());}
+function showProfile(){
+ session=null;
+ try{sessionStorage.setItem("lu10_refresh_view","profile")}catch(_){}
+ openOverlay("profileOverlay",profileHTML());
+}
 function editProfile(){let n=prompt("Profile name",learnerName()==="Learner"?"":learnerName());if(n===null)return;n=n.trim().slice(0,24)||"Learner";let choices=["🎓","🚀","🦊","🐼","🦁","🐯","🦄","⚡"],a=prompt("Choose an avatar: "+choices.join(" "),learnerAvatar());if(!choices.includes(a))a=learnerAvatar();state.profile={...(state.profile||{}),name:n,avatar:a};save();showProfile()}
 function attachHomeProfile(){setTimeout(()=>{let a=document.getElementById("app")||document.querySelector("main.app")||document.querySelector(".app"),existing=document.getElementById("profileLaunch");if(existing){existing.onclick=showProfile;return}if(!a)return;let b=document.createElement("button");b.id="profileLaunch";b.className="profile-launch";b.innerHTML=`<span class="profile-mini-avatar">${learnerAvatar()}</span><span><b>${learnerName()}</b><small>Level ${levelFromXP()} · View profile</small></span><span>›</span>`;b.onclick=showProfile;a.prepend(b)},0)}
 
@@ -861,9 +865,28 @@ function attachHomeProfile(){setTimeout(()=>{let a=document.getElementById("app"
 
 function closeOverlays(){document.querySelectorAll(".app-overlay").forEach(x=>x.remove())}
 function openOverlay(id,html){closeOverlays();document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));let o=document.createElement("div");o.id=id;o.className="app-overlay";o.innerHTML=html;document.body.appendChild(o);window.scrollTo(0,0)}
-function goHome(){session=null;clearActiveSession();closeOverlays();home();window.scrollTo(0,0)}
+function goHome(){
+ session=null;
+ try{sessionStorage.removeItem("lu10_refresh_view")}catch(_){}
+ clearActiveSession();closeOverlays();home();window.scrollTo(0,0)
+}
 function goProgress(){session=null;showProgress()}
 function goProfile(){session=null;showProfile()}
+
+
+// V0.23.1.4 — Pull-to-refresh view restore.
+// Android/PWA pull-to-refresh reloads the document. Preserve the Profile view so a
+// learner who refreshes while viewing Profile returns to Profile rather than Home.
+// Active mission resume remains higher priority and Home explicitly clears this marker.
+window.addEventListener("load",()=>{
+  setTimeout(()=>{
+    try{
+      if(sessionStorage.getItem("lu10_refresh_view")==="profile" && !session){
+        showProfile();
+      }
+    }catch(_){}
+  },80);
+});
 
 // V0.11B.4.2 — cloud-first onboarding.
 // Never let the legacy device-only welcome screen take over a cloud build.
