@@ -1,4 +1,4 @@
-# LevelUp10 V0.23.1.4 — Parent Progress Summary
+# LevelUp10 V0.23.1.5 — Parent Progress Summary
 
 Parent Dashboard now derives Level from the same 250-XP level rule as the learner app and Mastery from the existing curriculum mastery evidence in the linked student cloud state. No new progress table or SQL migration is required.
 
@@ -14,4 +14,5 @@ The app now verifies the database role immediately after sign-up and shows an ex
 V0.23.1 Parent linking and V0.23.1.1 recovery behaviour are retained.
 
 
-V0.23.1.4: preserves the Profile view across Android/PWA pull-to-refresh; Home still returns home intentionally and active mission resume remains unchanged.
+V0.23.1.5: preserves the Profile view across Android/PWA pull-to-refresh; Home still returns home intentionally and active mission resume remains unchanged.
+\nV0.23.1.5: Parent Dashboard now shows per-subject learning status and a read-only Full Progress view using the student's existing mastery evidence.\n

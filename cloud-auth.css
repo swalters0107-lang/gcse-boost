@@ -5,3 +5,19 @@
 .cloud-role-select{display:block;width:100%;margin-top:6px;padding:14px;border:1px solid #cfd3da;border-radius:13px;background:#fff;color:#202532;font:inherit}
 /* V0.23.1.1 account recovery + parent/student linking */
 .cloud-link-box{margin:18px 0;padding:16px;border-radius:16px;background:#f4f6f8;text-align:left}.cloud-link-box h4{margin:0 0 4px}.cloud-link-code{font-size:2rem;font-weight:950;letter-spacing:.16em;text-align:center;padding:14px 8px;margin-top:12px;background:#fff;border:2px dashed #9ca4b0;border-radius:14px}.cloud-code-input{display:block;width:100%;box-sizing:border-box;padding:15px;margin:10px 0 4px;border:1px solid #cfd3da;border-radius:13px;text-align:center;text-transform:uppercase;letter-spacing:.14em;font:800 1.15rem inherit}.cloud-empty{padding:14px;margin:14px 0;background:#f4f6f8;border-radius:14px;text-align:left;font-size:.9rem}.cloud-student-card{margin:14px 0;padding:15px;border:1px solid #e0e3e8;border-radius:16px;text-align:left}.cloud-student-card>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:1.05rem}.cloud-student-card>div:first-child span{font-size:1.6rem}.cloud-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.cloud-stat-grid div{padding:10px 4px;border-radius:12px;background:#f4f6f8;text-align:center}.cloud-stat-grid strong,.cloud-stat-grid small{display:block}.cloud-stat-grid strong{font-size:1.05rem}.cloud-stat-grid small{font-size:.7rem;opacity:.65;margin-top:2px}
+
+/* V0.23.1.5 parent learning progress */
+.cloud-subject-preview{margin-top:12px;border-top:1px solid #eceef2;padding-top:8px}
+.cloud-subject-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid #f0f1f3}
+.cloud-subject-row span,.cloud-subject-row small{display:block}.cloud-subject-row small{font-size:.68rem;opacity:.6;margin-top:2px}
+.cloud-subject-row strong{font-size:.78rem;text-align:right;white-space:nowrap}
+.cloud-progress-btn{margin-top:12px}
+.cloud-progress-head{text-align:left}.cloud-progress-head h3{margin:16px 0 4px}
+.cloud-progress-summary{margin:14px 0}
+.cloud-progress-list{text-align:left;margin-top:14px}
+.cloud-progress-subject{padding:13px 2px;border-bottom:1px solid #e8eaee}
+.cloud-progress-subject>div:first-child{display:flex;justify-content:space-between;gap:10px}
+.cloud-progress-subject strong{font-size:.82rem}
+.cloud-progress-subject small{display:block;margin-top:6px;font-size:.75rem;opacity:.65}
+.cloud-progress-bar{height:8px;background:#eceef2;border-radius:999px;overflow:hidden;margin-top:8px}
+.cloud-progress-bar i{display:block;height:100%;background:currentColor;border-radius:999px;opacity:.7}
