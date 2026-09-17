@@ -23,3 +23,7 @@ V0.23.2.1: Parent Full Progress now derives subject evidence directly from canon
 V0.23.2.1 Teacher V1: teacher-only dashboard, class creation, reusable expiring join codes, roster and read-only student progress. Student join continues through existing join_class_with_code RPC.
 
 V0.23.2.2: Student Cloud Account adds Join a Class. It calls the existing secure join_class_with_code RPC, accepts the teacher 8-character code, keeps the learner experience unchanged, and leaves teacher access read-only.
+
+
+## V0.23.3.1
+Fixes the Starting Assessment completion handoff: completion is flushed to Supabase before onboarding closes, then the learner is taken directly into a normal 8-question mission. This prevents stale cloud state from reopening Question 1.
