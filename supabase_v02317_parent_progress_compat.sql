@@ -1,4 +1,4 @@
--- LevelUp10 V0.23.1.8 — Parent progress compatibility fix
+-- LevelUp10 V0.23.2.0 — Parent progress compatibility fix
 -- Run after the existing parent_link_codes / parent_student_links setup.
 -- This does NOT create a second relationship model.
 

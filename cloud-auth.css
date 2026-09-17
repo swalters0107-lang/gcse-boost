@@ -22,7 +22,7 @@
 .cloud-progress-bar{height:8px;background:#eceef2;border-radius:999px;overflow:hidden;margin-top:8px}
 .cloud-progress-bar i{display:block;height:100%;background:currentColor;border-radius:999px;opacity:.7}
 
-/* V0.23.1.8 — account-role shell. Parents/teachers never use learner Home. */
+/* V0.23.2.1 — account-role shell. Parents/teachers never use learner Home. */
 .levelup10-role-shell{position:fixed;inset:0;z-index:2147483000;background:#f7f7f9;color:#202638;overflow:auto;-webkit-overflow-scrolling:touch}
 .role-shell-page{width:min(760px,100%);margin:0 auto;min-height:100%;padding:calc(24px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));box-sizing:border-box}
 .role-shell-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}
@@ -32,3 +32,11 @@
 .role-shell-link h2,.role-shell-empty h2{margin-top:0}.role-shell-link p,.role-shell-empty p{opacity:.7;line-height:1.45}
 .role-student-card{margin:0 0 16px}.role-shell-empty{padding:14px 4px}
 @media(max-width:520px){.role-shell-page{padding-left:14px;padding-right:14px}.role-shell-head h1{font-size:1.65rem}.role-shell-head{align-items:center}.role-shell-head p{font-size:.85rem}}
+
+/* V0.23.2.1 — Teacher V1 */
+.teacher-toolbar,.teacher-class-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px}.teacher-toolbar h2,.teacher-class-head h2{margin:0 0 5px}
+.teacher-class-card,.teacher-student-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid #e1e2e7;border-radius:18px;padding:16px;margin:10px 0;color:#202638}.teacher-class-card span,.teacher-student-row span:not(.teacher-avatar){display:flex;flex-direction:column;gap:4px}.teacher-class-card small,.teacher-student-row small{font-weight:500;opacity:.65}.teacher-class-card strong,.teacher-student-row>strong{font-size:.8rem}
+.teacher-form{margin-top:18px}.teacher-form label{display:block;font-weight:800;margin:18px 0 7px}.teacher-name-input{text-transform:none;letter-spacing:0;text-align:left}
+.teacher-code{min-width:190px;background:#f1ecff;border:1px solid #d9cdf7;border-radius:18px;padding:13px 16px;text-align:center}.teacher-code small,.teacher-code span{display:block}.teacher-code strong{display:block;font-size:1.55rem;letter-spacing:.12em;margin:4px 0}.teacher-code span{font-size:.75rem;opacity:.7}
+.teacher-avatar{font-size:1.7rem}.teacher-student-row{justify-content:flex-start}.teacher-student-row>strong{margin-left:auto}
+@media(max-width:560px){.teacher-toolbar,.teacher-class-head{flex-direction:column}.teacher-toolbar .cloud-primary{width:100%}.teacher-code{width:100%;box-sizing:border-box}.teacher-student-row{padding:14px 12px}}

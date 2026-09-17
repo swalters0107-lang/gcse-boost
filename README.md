@@ -1,4 +1,4 @@
-# LevelUp10 V0.23.1.8 — Parent Progress Summary
+# LevelUp10 V0.23.2.1 — Parent Progress Summary
 
 Parent Dashboard now derives Level from the same 250-XP level rule as the learner app and Mastery from the existing curriculum mastery evidence in the linked student cloud state. No new progress table or SQL migration is required.
 
@@ -14,8 +14,10 @@ The app now verifies the database role immediately after sign-up and shows an ex
 V0.23.1 Parent linking and V0.23.1.1 recovery behaviour are retained.
 
 
-V0.23.1.8: preserves the Profile view across Android/PWA pull-to-refresh; Home still returns home intentionally and active mission resume remains unchanged.
-\nV0.23.1.8: Parent Dashboard now shows per-subject learning status and a read-only Full Progress view using the student's existing mastery evidence.\n
-V0.23.1.8: role-based app shell. Parent and teacher accounts route directly to their dashboards on sign-in/start/refresh and cannot enter the learner Home/Profile/Shop/Mission shell. Parent full progress remains read-only.
+V0.23.2.1: preserves the Profile view across Android/PWA pull-to-refresh; Home still returns home intentionally and active mission resume remains unchanged.
+\nV0.23.2.1: Parent Dashboard now shows per-subject learning status and a read-only Full Progress view using the student's existing mastery evidence.\n
+V0.23.2.1: role-based app shell. Parent and teacher accounts route directly to their dashboards on sign-in/start/refresh and cannot enter the learner Home/Profile/Shop/Mission shell. Parent full progress remains read-only.
 
-V0.23.1.8: Parent Full Progress now derives subject evidence directly from canonical state.history rows. It no longer depends on learner-side curriculumArea/skill migration metadata. Adds read-only grade estimates from the same history evidence.
+V0.23.2.1: Parent Full Progress now derives subject evidence directly from canonical state.history rows. It no longer depends on learner-side curriculumArea/skill migration metadata. Adds read-only grade estimates from the same history evidence.
+
+V0.23.2.1 Teacher V1: teacher-only dashboard, class creation, reusable expiring join codes, roster and read-only student progress. Student join continues through existing join_class_with_code RPC.
