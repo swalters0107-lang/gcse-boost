@@ -1,3 +1,7 @@
+# LevelUp10 V0.23.1.3 — Parent Progress Summary
+
+Parent Dashboard now derives Level from the same 250-XP level rule as the learner app and Mastery from the existing curriculum mastery evidence in the linked student cloud state. No new progress table or SQL migration is required.
+
 # LevelUp10 V0.23.1.2 — Parent Registration Fix
 
 Fixes account-role creation so Student, Parent and Teacher selections are persisted to `profiles.role`.
