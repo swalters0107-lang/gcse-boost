@@ -749,10 +749,64 @@ function missionMCQPool(subject,p){
  return mc;
 }
 function needsDivision(subject){return subject==="Maths"&&!(state.served||[]).slice(-24).some(r=>r.subject==="Maths"&&r.topic==="Division")}
+
+// V0.23.4.0 — Adaptive Pathway V1
+// Uses the Starting Point estimate as the initial difficulty anchor, then lets
+// ongoing topic/skill evidence move the learner up, down and towards weak gaps.
+function adaptivePathwayProfile(subject){
+ const baseline=state.baselineAssessment?.subjects?.[subject]||null;
+ const rows=(state.history||[]).filter(x=>x.subject===subject).slice(-24);
+ const recent=rows.slice(-12), correct=recent.filter(x=>x.correct===true||x.ok===true).length;
+ const accuracy=recent.length?Math.round(correct*100/recent.length):null;
+ let target=Number(baseline?.estimatedGrade)||4;
+ // Ongoing evidence gradually outweighs the baseline.
+ if(recent.length>=4){
+   if(accuracy>=85)target+=1;
+   else if(accuracy<=45)target-=1;
+ }
+ if(recent.length>=10){
+   const avg=recent.reduce((n,x)=>n+(Number(x.grade||x.difficulty)||target),0)/recent.length;
+   if(accuracy>=75)target=Math.max(target,Math.round(avg));
+   if(accuracy<55)target=Math.min(target,Math.max(2,Math.round(avg)-1));
+ }
+ const higher=state.tiers?.[subject]==="Higher";
+ const max=(subject==="Maths"||subject==="Science")?(higher?9:5):9;
+ target=Math.max(2,Math.min(max,Math.round(target)));
+ return {subject,targetGrade:target,accuracy,attempts:recent.length,baselineGrade:Number(baseline?.estimatedGrade)||null};
+}
+function adaptiveTopicNeed(subject,topic){
+ const rows=(state.history||[]).filter(x=>x.subject===subject&&x.topic===topic).slice(-12);
+ if(!rows.length)return 22; // coverage matters, but known weakness matters more.
+ const correct=rows.filter(x=>x.correct===true||x.ok===true).length;
+ const acc=Math.round(correct*100/rows.length);
+ let need=Math.max(0,100-acc)*.55;
+ need+=Math.max(0,4-rows.length)*4;
+ if(acc>=85&&rows.length>=5)need-=22;
+ return need;
+}
+function adaptiveQuestionScore(subject,q){
+ const p=adaptivePathwayProfile(subject);
+ const grade=Number(q.grade||q.difficulty)||4;
+ const distance=Math.abs(grade-p.targetGrade);
+ // Strong preference for the learner's current working grade, while still
+ // allowing adjacent grades so missions can confirm progress and stretch.
+ const difficulty=34-(distance*13);
+ const topic=adaptiveTopicNeed(subject,q.topic||"Practice");
+ return difficulty+topic;
+}
+function adaptiveMissionReason(subject){
+ const p=adaptivePathwayProfile(subject);
+ const weak=topicStats(subject).filter(x=>x.n>0&&x.acc<75)[0];
+ if(weak)return `Adaptive practice · Grade ${p.targetGrade} level · focusing on ${weak.topic}`;
+ if(p.baselineGrade&&!p.attempts)return `Starting Point: Grade ${p.baselineGrade} · building your first learning evidence`;
+ return `Adaptive practice · around Grade ${p.targetGrade} · balanced across your curriculum`;
+}
+window.gcseBoostAdaptiveProfile=adaptivePathwayProfile;
+
 function choose(subject,n=8,category="All"){
  let p=categoryPool(subject,category),recentFP=recentFingerprints(180),recentPatterns=recentVarietyPatterns(subject,120),out=[],usedFP=new Set(),usedPatterns=new Set(),topicCounts=new Map();
  function fresh(group){return group.filter(q=>!recentFP.has(questionFingerprint(q))&&!usedFP.has(questionFingerprint(q)))}
- function score(q){let fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice",v=Math.random()*10+skillMasteryScore(q);if(recentFP.has(fp))v-=1000;if(recentPatterns.has(pat))v-=100;if(usedFP.has(fp))v-=2000;if(usedPatterns.has(pat))v-=120;v-=(topicCounts.get(topic)||0)*28;return v}
+ function score(q){let fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice",v=Math.random()*10+skillMasteryScore(q)+adaptiveQuestionScore(subject,q);if(recentFP.has(fp))v-=1000;if(recentPatterns.has(pat))v-=100;if(usedFP.has(fp))v-=2000;if(usedPatterns.has(pat))v-=120;v-=(topicCounts.get(topic)||0)*28;return v}
  function take(group,count){let g=fresh(group);while(count>0&&g.length){g.sort((a,b)=>score(b)-score(a));let q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";if(usedFP.has(fp))continue;out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--}}
  if(category==="All"){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0],fp=questionFingerprint(q);out.push(q);usedFP.add(fp);usedPatterns.add(varietyPattern(q));topicCounts.set(q.topic||"Practice",1)}}}
  // V0.22.7 — coverage-first topic rotation inside a selected curriculum area.
@@ -785,7 +839,7 @@ function choose(subject,n=8,category="All"){
  if(category!=="All")out=out.filter(q=>categoryFor(q)===category);
  return out.slice(0,n).sort(()=>Math.random()-.5)
 }
-function home(){applyAppTheme();show("home");attachHomeProfile();let pn=document.getElementById("profileName"),pa=document.getElementById("profileAvatar"),pl=document.getElementById("profileLevel");if(pn)pn.textContent=learnerName();if(pa){pa.innerHTML=avatarDecorHTML(false);}if(pl)pl.textContent="Level "+levelFromXP();$("streak").textContent=state.streak;$("xp").textContent=state.xp;$("lives").textContent=state.lives;let cb=$("coins");if(cb)cb.textContent=coinBalance();let recommended=todaySubject();$("missionTitle").textContent=recommended+" Boost";let strip=document.getElementById("schoolTodayStrip");if(strip)strip.innerHTML=todaySchoolHTML();let reason=document.getElementById("missionReason");if(reason)reason.textContent=todaysSchoolSubjects().includes(recommended)?`Recommended because you have ${recommended} today · balanced with your recent progress`:"Recommended from your recent progress";renderProgress();renderWeak();renderBoss();renderDragon();["Maths","Science"].forEach(sub=>{const b=$(sub.toLowerCase()+"Ready");if(b){b.classList.toggle("hidden",!readinessEligible(sub));b.textContent="TAKE "+sub.toUpperCase()+" HIGHER READINESS TEST"}const t=$(sub.toLowerCase()+"Tier");if(t)t.textContent=state.tiers[sub]})}
+function home(){applyAppTheme();show("home");attachHomeProfile();let pn=document.getElementById("profileName"),pa=document.getElementById("profileAvatar"),pl=document.getElementById("profileLevel");if(pn)pn.textContent=learnerName();if(pa){pa.innerHTML=avatarDecorHTML(false);}if(pl)pl.textContent="Level "+levelFromXP();$("streak").textContent=state.streak;$("xp").textContent=state.xp;$("lives").textContent=state.lives;let cb=$("coins");if(cb)cb.textContent=coinBalance();let recommended=todaySubject();$("missionTitle").textContent=recommended+" Boost";let strip=document.getElementById("schoolTodayStrip");if(strip)strip.innerHTML=todaySchoolHTML();let reason=document.getElementById("missionReason");if(reason)reason.textContent=todaysSchoolSubjects().includes(recommended)?`You have ${recommended} today · ${adaptiveMissionReason(recommended)}`:adaptiveMissionReason(recommended);renderProgress();renderWeak();renderBoss();renderDragon();["Maths","Science"].forEach(sub=>{const b=$(sub.toLowerCase()+"Ready");if(b){b.classList.toggle("hidden",!readinessEligible(sub));b.textContent="TAKE "+sub.toUpperCase()+" HIGHER READINESS TEST"}const t=$(sub.toLowerCase()+"Tier");if(t)t.textContent=state.tiers[sub]})}
 function renderProgress(){const box=$("progressCards");if(!box)return;box.innerHTML="";["Maths","English","Science","History","Geography","German","Drama","Citizenship","Sport Science","Catering","Spanish","RE"].forEach(sub=>{const st=subjectStats(sub),weak=topicStats(sub).filter(x=>x.n).slice(0,2);const d=document.createElement("div");d.className="progressCard";d.innerHTML=`<b>${sub} <em class="board">${BOARD[sub]}</em></b><strong>${st.n?st.masteryLevel+" · "+st.mastery+"%":"New"}</strong><small>${st.n?st.acc+"% recent answer accuracy · ":""}${st.n?st.areasStarted+"/"+st.totalAreas+" curriculum areas started":"No evidence yet"}${weak.length?" • Focus: "+weak.map(x=>x.topic).join(", "):""}</small>`;box.appendChild(d)})}
 function startReadiness(subject){const qs=readinessQuestions(subject);if(qs.length<10){alert("Keep practising first — more Higher bridge questions are needed.");return}session={subject,qs,index:0,correct:0,answered:false,isReadiness:true,isBoss:false,recoveries:0,sessionMistakes:[]};saveActiveSession();show("lesson");render()}
 function start(subject=todaySubject(),category="All"){try{const qs=choose(subject,8,category);if(!qs.length)throw Error("No questions");state.lives=3;if(state.baselineAssessment?.firstMissionPending&&subject===state.baselineAssessment?.firstMissionSubject){state.baselineAssessment.firstMissionPending=false;state.baselineAssessment.firstMissionStartedAt=new Date().toISOString()}save();session={subject,category,qs,index:0,correct:0,answered:false,isReadiness:false,isBoss:false,recoveries:0,sessionMistakes:[]};saveActiveSession();show("lesson");render()}catch(e){fail("M01",e)}}
@@ -2565,7 +2619,7 @@ window.gcseBoostCloudLearnerId=function(){return state?.profile?.cloudLearnerId|
 })();
 
 
-// V0.23.3.2 — baseline first-mission routing fix.
+// V0.23.4.0 — Adaptive Pathway V1 + baseline first-mission routing.
 // Cloud-only onboarding gate: existing learners with learning history are never interrupted.
 const BASELINE_V1 = [
  {s:"Maths",g:3,q:"What is 3/4 of 20?",a:["5","10","15","16"],c:2},
