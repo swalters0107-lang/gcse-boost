@@ -27,3 +27,7 @@ V0.23.2.2: Student Cloud Account adds Join a Class. It calls the existing secure
 
 ## V0.23.4.2
 Fixes the Starting Assessment completion handoff: completion is flushed to Supabase before onboarding closes, then the learner is taken directly into a normal 8-question mission. This prevents stale cloud state from reopening Question 1.
+
+
+## V0.23.4.3 — Balanced Adaptive Missions
+Normal 8-question missions now target 3–5 skills rather than allowing one weak topic to dominate. The weakest evidenced skills are prioritised, difficulty mixes consolidation/current/stretch around the learner target grade, recent fingerprints/patterns are strongly avoided, and the Home mission reason describes the mission as focusing on the learner's weakest subject skills.
