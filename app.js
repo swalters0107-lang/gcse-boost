@@ -803,12 +803,70 @@ function adaptiveMissionReason(subject){
 }
 window.gcseBoostAdaptiveProfile=adaptivePathwayProfile;
 
+
+// V0.23.4.1 — Adaptive Mission Composition
+// A normal 8-question adaptive mission now has a deliberate shape:
+// 4 priority-topic questions, 2 other weak/recent-topic questions,
+// 1 consolidation question and 1 stretch/check question.
+function adaptiveFocusTopic(subject){
+ const weak=topicStats(subject).filter(x=>x.n>0&&x.acc<75)[0];
+ return weak?.topic||null;
+}
+function adaptiveSecondaryTopics(subject,focus){
+ return topicStats(subject)
+   .filter(x=>x.topic!==focus&&x.n>0&&x.acc<80)
+   .sort((a,b)=>a.acc-b.acc||a.n-b.n)
+   .map(x=>x.topic);
+}
+
 function choose(subject,n=8,category="All"){
  let p=categoryPool(subject,category),recentFP=recentFingerprints(180),recentPatterns=recentVarietyPatterns(subject,120),out=[],usedFP=new Set(),usedPatterns=new Set(),topicCounts=new Map();
  function fresh(group){return group.filter(q=>!recentFP.has(questionFingerprint(q))&&!usedFP.has(questionFingerprint(q)))}
  function score(q){let fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice",v=Math.random()*10+skillMasteryScore(q)+adaptiveQuestionScore(subject,q);if(recentFP.has(fp))v-=1000;if(recentPatterns.has(pat))v-=100;if(usedFP.has(fp))v-=2000;if(usedPatterns.has(pat))v-=120;v-=(topicCounts.get(topic)||0)*28;return v}
  function take(group,count){let g=fresh(group);while(count>0&&g.length){g.sort((a,b)=>score(b)-score(a));let q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";if(usedFP.has(fp))continue;out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--}}
- if(category==="All"){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0],fp=questionFingerprint(q);out.push(q);usedFP.add(fp);usedPatterns.add(varietyPattern(q));topicCounts.set(q.topic||"Practice",1)}}}
+ function forcedTake(group,count,gradeTarget=null){
+   let g=fresh(group);
+   while(count>0&&g.length){
+     g.sort((a,b)=>{
+       const ga=Number(a.grade||a.difficulty)||4,gb=Number(b.grade||b.difficulty)||4;
+       const da=gradeTarget==null?0:Math.abs(ga-gradeTarget),db=gradeTarget==null?0:Math.abs(gb-gradeTarget);
+       const pa=usedPatterns.has(varietyPattern(a))?80:0,pb=usedPatterns.has(varietyPattern(b))?80:0;
+       return (score(b)-db*18-pb)-(score(a)-da*18-pa);
+     });
+     const q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";
+     if(usedFP.has(fp))continue;
+     out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--;
+   }
+ }
+ if(category==="All"&&n===8){
+   const ap=adaptivePathwayProfile(subject),focus=adaptiveFocusTopic(subject);
+   if(focus){
+     // 4/8: make the Home-screen focus claim true.
+     forcedTake(p.filter(q=>(q.topic||"Practice")===focus),4,ap.targetGrade);
+
+     // 2/8: revisit other evidenced weak topics, one from each where possible.
+     const secondary=adaptiveSecondaryTopics(subject,focus);
+     for(const topic of secondary){
+       if(out.length>=6)break;
+       forcedTake(p.filter(q=>(q.topic||"Practice")===topic),1,ap.targetGrade);
+     }
+     if(out.length<6){
+       forcedTake(p.filter(q=>(q.topic||"Practice")!==focus),6-out.length,ap.targetGrade);
+     }
+
+     // 1/8: consolidation from a topic already performing securely.
+     const secure=topicStats(subject).filter(x=>x.n>=2&&x.acc>=75&&x.topic!==focus).map(x=>x.topic);
+     forcedTake(p.filter(q=>secure.includes(q.topic||"Practice")),1,ap.targetGrade);
+     if(out.length<7)forcedTake(p.filter(q=>(q.topic||"Practice")!==focus),1,ap.targetGrade);
+
+     // 1/8: stretch/check, normally one grade above the current target where allowed.
+     const higher=state.tiers?.[subject]==="Higher";
+     const max=(subject==="Maths"||subject==="Science")?(higher?9:5):9;
+     const stretch=Math.min(max,ap.targetGrade+1);
+     forcedTake(p.filter(q=>(Number(q.grade||q.difficulty)||4)===stretch),1,stretch);
+   }
+ }
+ if(category==="All"&&out.length===0){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0],fp=questionFingerprint(q);out.push(q);usedFP.add(fp);usedPatterns.add(varietyPattern(q));topicCounts.set(q.topic||"Practice",1)}}}
  // V0.22.7 — coverage-first topic rotation inside a selected curriculum area.
  // Previously the mastery score could keep choosing the same weak/started skill (for example
  // Biology → Homeostasis) while untouched skills remained New. A selected area now samples
@@ -2619,7 +2677,7 @@ window.gcseBoostCloudLearnerId=function(){return state?.profile?.cloudLearnerId|
 })();
 
 
-// V0.23.4.0 — Adaptive Pathway V1 + baseline first-mission routing.
+// V0.23.4.1 — Adaptive Mission Composition + Adaptive Pathway V1.
 // Cloud-only onboarding gate: existing learners with learning history are never interrupted.
 const BASELINE_V1 = [
  {s:"Maths",g:3,q:"What is 3/4 of 20?",a:["5","10","15","16"],c:2},
