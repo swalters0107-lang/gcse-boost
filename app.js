@@ -804,10 +804,10 @@ function adaptiveMissionReason(subject){
 window.gcseBoostAdaptiveProfile=adaptivePathwayProfile;
 
 
-// V0.23.4.1 — Adaptive Mission Composition
-// A normal 8-question adaptive mission now has a deliberate shape:
-// 4 priority-topic questions, 2 other weak/recent-topic questions,
-// 1 consolidation question and 1 stretch/check question.
+// V0.23.4.2 — Deterministic Adaptive Mission Composition
+// Normal 8-question adaptive missions now enforce the promise shown on Home:
+// Q1-Q4 focus topic, Q5-Q6 other weaknesses, Q7 consolidation, Q8 stretch.
+// Focus difficulty follows target, target, one below, one above (where available).
 function adaptiveFocusTopic(subject){
  const weak=topicStats(subject).filter(x=>x.n>0&&x.acc<75)[0];
  return weak?.topic||null;
@@ -823,51 +823,52 @@ function choose(subject,n=8,category="All"){
  let p=categoryPool(subject,category),recentFP=recentFingerprints(180),recentPatterns=recentVarietyPatterns(subject,120),out=[],usedFP=new Set(),usedPatterns=new Set(),topicCounts=new Map();
  function fresh(group){return group.filter(q=>!recentFP.has(questionFingerprint(q))&&!usedFP.has(questionFingerprint(q)))}
  function score(q){let fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice",v=Math.random()*10+skillMasteryScore(q)+adaptiveQuestionScore(subject,q);if(recentFP.has(fp))v-=1000;if(recentPatterns.has(pat))v-=100;if(usedFP.has(fp))v-=2000;if(usedPatterns.has(pat))v-=120;v-=(topicCounts.get(topic)||0)*28;return v}
- function take(group,count){let g=fresh(group);while(count>0&&g.length){g.sort((a,b)=>score(b)-score(a));let q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";if(usedFP.has(fp))continue;out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--}}
- function forcedTake(group,count,gradeTarget=null){
-   let g=fresh(group);
-   while(count>0&&g.length){
-     g.sort((a,b)=>{
-       const ga=Number(a.grade||a.difficulty)||4,gb=Number(b.grade||b.difficulty)||4;
-       const da=gradeTarget==null?0:Math.abs(ga-gradeTarget),db=gradeTarget==null?0:Math.abs(gb-gradeTarget);
-       const pa=usedPatterns.has(varietyPattern(a))?80:0,pb=usedPatterns.has(varietyPattern(b))?80:0;
-       return (score(b)-db*18-pb)-(score(a)-da*18-pa);
-     });
-     const q=g.shift(),fp=questionFingerprint(q),pat=varietyPattern(q),topic=q.topic||"Practice";
-     if(usedFP.has(fp))continue;
-     out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);count--;
-   }
+ function addQuestion(q){if(!q)return false;const fp=questionFingerprint(q);if(usedFP.has(fp))return false;const pat=varietyPattern(q),topic=q.topic||"Practice";out.push(q);usedFP.add(fp);usedPatterns.add(pat);topicCounts.set(topic,(topicCounts.get(topic)||0)+1);return true}
+ function take(group,count){let g=fresh(group);while(count>0&&g.length){g.sort((a,b)=>score(b)-score(a));if(addQuestion(g.shift()))count--}}
+ function deterministicTake(group,gradeTarget=null){
+   // Prefer a fresh item, but if the learner recently saw all suitable questions,
+   // keep the mission composition promise rather than abandoning the focus topic.
+   let g=group.filter(q=>!usedFP.has(questionFingerprint(q)));
+   if(!g.length)return false;
+   g.sort((a,b)=>{
+     const ga=Number(a.grade||a.difficulty)||4,gb=Number(b.grade||b.difficulty)||4;
+     const da=gradeTarget==null?0:Math.abs(ga-gradeTarget),db=gradeTarget==null?0:Math.abs(gb-gradeTarget);
+     const ra=recentFP.has(questionFingerprint(a))?1:0,rb=recentFP.has(questionFingerprint(b))?1:0;
+     const pa=usedPatterns.has(varietyPattern(a))?1:0,pb=usedPatterns.has(varietyPattern(b))?1:0;
+     return (da-db)||(ra-rb)||(pa-pb)||(score(b)-score(a));
+   });
+   return addQuestion(g[0]);
  }
  if(category==="All"&&n===8){
    const ap=adaptivePathwayProfile(subject),focus=adaptiveFocusTopic(subject);
    if(focus){
-     // 4/8: make the Home-screen focus claim true.
-     forcedTake(p.filter(q=>(q.topic||"Practice")===focus),4,ap.targetGrade);
-
-     // 2/8: revisit other evidenced weak topics, one from each where possible.
-     const secondary=adaptiveSecondaryTopics(subject,focus);
-     for(const topic of secondary){
-       if(out.length>=6)break;
-       forcedTake(p.filter(q=>(q.topic||"Practice")===topic),1,ap.targetGrade);
-     }
-     if(out.length<6){
-       forcedTake(p.filter(q=>(q.topic||"Practice")!==focus),6-out.length,ap.targetGrade);
-     }
-
-     // 1/8: consolidation from a topic already performing securely.
-     const secure=topicStats(subject).filter(x=>x.n>=2&&x.acc>=75&&x.topic!==focus).map(x=>x.topic);
-     forcedTake(p.filter(q=>secure.includes(q.topic||"Practice")),1,ap.targetGrade);
-     if(out.length<7)forcedTake(p.filter(q=>(q.topic||"Practice")!==focus),1,ap.targetGrade);
-
-     // 1/8: stretch/check, normally one grade above the current target where allowed.
      const higher=state.tiers?.[subject]==="Higher";
      const max=(subject==="Maths"||subject==="Science")?(higher?9:5):9;
-     const stretch=Math.min(max,ap.targetGrade+1);
-     forcedTake(p.filter(q=>(Number(q.grade||q.difficulty)||4)===stretch),1,stretch);
+     const min=2,target=Math.max(min,Math.min(max,ap.targetGrade));
+     const focusPool=p.filter(q=>(q.topic||"Practice")===focus);
+     const focusGrades=[target,target,Math.max(min,target-1),Math.min(max,target+1)];
+
+     // Q1-Q4: exactly four focus-topic questions whenever four unique items exist.
+     for(const g of focusGrades)deterministicTake(focusPool,g);
+     while(out.length<4&&deterministicTake(focusPool,target)){}
+
+     // Q5-Q6: other evidenced weak topics, one each where possible.
+     const secondary=adaptiveSecondaryTopics(subject,focus);
+     for(const topic of secondary){if(out.length>=6)break;deterministicTake(p.filter(q=>(q.topic||"Practice")===topic),target)}
+     while(out.length<6&&deterministicTake(p.filter(q=>(q.topic||"Practice")!==focus),target)){}
+
+     // Q7: consolidation from a secure topic; otherwise another non-focus item.
+     const secure=topicStats(subject).filter(x=>x.n>=2&&x.acc>=75&&x.topic!==focus).map(x=>x.topic);
+     if(out.length<7)deterministicTake(p.filter(q=>secure.includes(q.topic||"Practice")),Math.max(min,target-1));
+     if(out.length<7)deterministicTake(p.filter(q=>(q.topic||"Practice")!==focus),Math.max(min,target-1));
+
+     // Q8: controlled stretch — one grade above target, capped by the learner's tier.
+     if(out.length<8)deterministicTake(p.filter(q=>(Number(q.grade||q.difficulty)||4)===Math.min(max,target+1)),Math.min(max,target+1));
+     if(out.length<8)deterministicTake(p,target);
    }
  }
- if(category==="All"&&out.length===0){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0],fp=questionFingerprint(q);out.push(q);usedFP.add(fp);usedPatterns.add(varietyPattern(q));topicCounts.set(q.topic||"Practice",1)}}}
- // V0.22.7 — coverage-first topic rotation inside a selected curriculum area.
+ if(category==="All"&&out.length===0){let cats=categoriesFor(subject).filter(x=>x!=="All"),recentCats=(state.served||[]).filter(r=>r.subject===subject).slice(-60).map(r=>r.category||r.topic),ranked=cats.map(c=>({c,n:recentCats.filter(x=>x===c).length})).sort((a,b)=>a.n-b.n);for(const x of ranked.slice(0,Math.min(3,ranked.length))){let g=fresh(p.filter(q=>categoryFor(q)===x.c));if(g.length){g.sort((a,b)=>score(b)-score(a));let q=g[0];addQuestion(q)}}}
+// V0.22.7 — coverage-first topic rotation inside a selected curriculum area.
  // Previously the mastery score could keep choosing the same weak/started skill (for example
  // Biology → Homeostasis) while untouched skills remained New. A selected area now samples
  // every least-seen skill before returning to weakness targeting. With an 8-question Biology
