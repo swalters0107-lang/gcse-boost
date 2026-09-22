@@ -45,3 +45,10 @@ Normal 8-question missions now target 3–5 skills rather than allowing one weak
 - Teachers can set/update the current lesson for each class.
 - Student class page shows the current lesson and starts an 8-question lesson using the existing adaptive question engine.
 - Run `supabase_v02380_class_lessons.sql` once in Supabase before testing.
+
+## V0.23.8.1 — Stability Fix
+- Profile and other app overlays now replace Home from the top of the viewport and return cleanly to Home.
+- Mission categories are canonicalised so class lessons such as `All Maths` use the valid adaptive subject pool.
+- Curriculum-focus fallback remains inside the learner's subject, tier and selected-course filters.
+- Boss Battle question selection now respects the same tier and selected-course filters.
+- No Supabase schema change is required.
