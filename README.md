@@ -52,3 +52,13 @@ Normal 8-question missions now target 3–5 skills rather than allowing one weak
 - Curriculum-focus fallback remains inside the learner's subject, tier and selected-course filters.
 - Boss Battle question selection now respects the same tier and selected-course filters.
 - No Supabase schema change is required.
+
+## V0.23.9.0 — Focused Class Lessons
+- Teacher Topic and Lesson Focus choices are generated from the real LevelUp10 question bank.
+- The selected Lesson Focus now controls the student's eight-question class lesson.
+- If a narrow focus has fewer than eight eligible questions, remaining questions come only from the selected parent topic.
+- Student tier and course filters remain enforced.
+- Class name and lesson focus are shown during the mission.
+- Completed class lessons are saved in the student's existing cloud-synced learning state and shown read-only in teacher student progress.
+- No Supabase schema change is required.
+- See `FRIENDS_BATTLES_DESIGN.md` for the proposed safeguarded social roadmap; social features are not enabled in this build.
