@@ -13,8 +13,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 
-<link rel="stylesheet" href="gcse-boost-b421.css?v=02350">
-<link rel="stylesheet" href="cloud-auth.css?v=02350">
+<link rel="stylesheet" href="gcse-boost-b421.css?v=02360">
+<link rel="stylesheet" href="cloud-auth.css?v=02360">
 </head>
 
 <body>
@@ -31,7 +31,7 @@
         <small>10 minutes a day</small>
     </div>
 
-    <small id="appVersion">V0.23.5.0</small>
+    <small id="appVersion">V0.23.6.0</small>
 </header>
 
 <div class="stats">
@@ -86,6 +86,13 @@
 
 </button>
 
+<div id="bossCard" class="card bossCard hidden">
+    <small>BOSS BATTLE READY</small>
+    <h2>👑 Boss Battle</h2>
+    <p id="bossText">Boss Battle unlocked — 10 mixed questions from weak areas.</p>
+    <button id="bossBtn" class="primary hidden">START BOSS BATTLE</button>
+</div>
+
 <button
     class="shop-home-btn"
     onclick="showShop()">
@@ -94,6 +101,14 @@
     <span>Spend your coins</span>
 
 </button>
+
+<section id="studentClassesHome" class="student-classes-home">
+    <div class="student-classes-head">
+        <div><small>MY CLASSES</small><h2>🏫 Classes</h2></div>
+        <span>Teacher-linked learning</span>
+    </div>
+    <div id="studentClassesHomeBody"><p class="student-classes-loading">Loading your classes…</p></div>
+</section>
 
 <div id="dragonCard" class="card dragonCard hidden">
     <div class="dragon-mark">🐉</div>
@@ -282,23 +297,7 @@
 
 
 
-<div class="card bossCard">
 
-    <h2>👑 Boss Battle</h2>
-
-    <p id="bossText">
-        5 missions until the next Boss Battle.
-    </p>
-
-    <button
-        id="bossBtn"
-        class="primary hidden">
-
-        START BOSS BATTLE
-
-    </button>
-
-</div>
 
 </section>
 
@@ -398,7 +397,7 @@
 </main>
 
 
-<script src="app.js?v=02350"></script>
+<script src="app.js?v=02360"></script>
 
 <script src="fix-v011a29.js?v=011a29"></script>
 
@@ -406,7 +405,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="cloud-auth.js?v=02350"></script>
+<script src="cloud-auth.js?v=02360"></script>
 
 
 </body>

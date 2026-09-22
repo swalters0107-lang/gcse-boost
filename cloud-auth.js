@@ -104,6 +104,7 @@
       cloudLoadState="loaded";
       setStatus(currentProfile?.display_name||currentUser.email||"Synced",true);
       setTimeout(()=>window.gcseBoostStartBaselineIfNeeded?.(),80);
+      setTimeout(renderStudentClassesHome,120);
     }catch(e){cloudLoadState="failed";cloudLoadError=e?.message||String(e);console.warn("Cloud load failed",e);setStatus("Cloud load failed",false)}finally{syncing=false}
     if(newLearnerInitialised){newLearnerInitialised=false;setTimeout(saveNow,100)}
   }
@@ -157,6 +158,31 @@
     if(error)return message(error.message,"error");
     if(input)input.value=""; message("Student linked ✓","good"); await renderParentDashboard();
   }
+  async function renderStudentClassesHome(){
+    const host=document.getElementById("studentClassesHomeBody");
+    if(!host)return;
+    if(!client||!currentUser||!currentProfile||!(["student","learner"].includes(currentProfile.role))){
+      host.innerHTML='<p class="student-classes-empty">Sign in to your student account to see your classes.</p>';return;
+    }
+    host.innerHTML='<p class="student-classes-loading">Loading your classes…</p>';
+    const {data,error}=await client.rpc("get_student_classes");
+    if(error){host.innerHTML=`<p class="student-classes-empty">Classes are unavailable until the V0.23.6.0 database update is installed.</p>`;return}
+    const rows=Array.isArray(data)?data:[];
+    const cards=rows.map(r=>`<article class="student-class-card"><span class="student-class-icon">🏫</span><span><b>${esc(r.class_name||"Class")}</b><small>${r.subject?esc(r.subject):"GCSE Boost class"}${r.teacher_name?" · "+esc(r.teacher_name):""}</small></span><strong>JOINED ✓</strong></article>`).join("");
+    host.innerHTML=(cards||'<p class="student-classes-empty">You have not joined a class yet.</p>')+`<div class="student-class-join"><input id="homeClassJoinCode" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="Class code"><button id="homeJoinClass" type="button">JOIN A CLASS</button><div id="homeClassJoinResult"></div></div>`;
+    const btn=document.getElementById("homeJoinClass");
+    if(btn)btn.onclick=async()=>{
+      const input=document.getElementById("homeClassJoinCode"),code=(input?.value||"").trim().toUpperCase(),out=document.getElementById("homeClassJoinResult");
+      if(!code||code.length<6){if(out)out.textContent="Enter the class code from your teacher.";return}
+      btn.disabled=true;btn.textContent="JOINING…";
+      const res=await client.rpc("join_class_with_code",{entered_code:code});
+      btn.disabled=false;btn.textContent="JOIN A CLASS";
+      if(res.error){if(out)out.textContent=res.error.message;return}
+      await renderStudentClassesHome();
+    };
+  }
+  window.gcseRenderStudentClassesHome=renderStudentClassesHome;
+
   async function joinClassWithCode(){
     const input=document.getElementById("cloudClassJoinCode");
     const btn=document.getElementById("cloudJoinClass");
@@ -171,6 +197,7 @@
     const out=document.getElementById("cloudClassJoinResult");
     if(out)out.innerHTML='<div class="cloud-safe-note cloud-class-joined">Class joined ✓</div>';
     message("Class joined ✓","good");
+    renderStudentClassesHome();
     return data;
   }
   function summariseState(state,xp){
