@@ -33,15 +33,15 @@ Fixes the Starting Assessment completion handoff: completion is flushed to Supab
 Normal 8-question missions now target 3–5 skills rather than allowing one weak topic to dominate. The weakest evidenced skills are prioritised, difficulty mixes consolidation/current/stretch around the learner target grade, recent fingerprints/patterns are strongly avoided, and the Home mission reason describes the mission as focusing on the learner's weakest subject skills.
 
 
-## V0.23.7.0 — Teacher Class Overview
+## V0.23.8.0 — Teacher Class Overview
 - Adds class-level mastery, 7-day activity, strongest/developing subject summary.
 - Adds per-student strongest/developing subject and last activity.
 - Adds transparent Needs Attention flags for no evidence, 14+ days inactivity, or <50% recent accuracy after at least 3 attempts.
 - Keeps individual read-only Progress view.
 - No Supabase schema change required.
 
-## V0.23.7.0 — Class Lessons
+## V0.23.8.0 — Class Lessons
 - Student class cards are clickable and open a dedicated class page.
 - Teachers can set/update the current lesson for each class.
 - Student class page shows the current lesson and starts an 8-question lesson using the existing adaptive question engine.
-- Run `supabase_v02370_class_lessons.sql` once in Supabase before testing.
+- Run `supabase_v02380_class_lessons.sql` once in Supabase before testing.
