@@ -1,3 +1,9 @@
+# LevelUp10 V0.24.2 — Friends Profile Tab
+
+- Moved Friends & Leaderboard out of Rewards into its own Profile tab.
+- Changed the mobile Profile navigation to two rows of three tabs.
+- No database or SQL changes are required for this release.
+
 # LevelUp10 V0.24.1 — Profile Navigation Fix
 
 - Moved Progress into the grey Profile navigation bar.
