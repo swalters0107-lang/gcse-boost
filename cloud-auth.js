@@ -165,11 +165,14 @@
       host.innerHTML='<p class="student-classes-empty">Sign in to your student account to see your classes.</p>';return;
     }
     host.innerHTML='<p class="student-classes-loading">Loading your classes…</p>';
-    const {data,error}=await client.rpc("get_student_classes");
-    if(error){host.innerHTML=`<p class="student-classes-empty">Classes are unavailable until the V0.23.6.0 database update is installed.</p>`;return}
+    let {data,error}=await client.rpc("get_student_class_lessons");
+    if(error){({data,error}=await client.rpc("get_student_classes"));}
+    if(error){host.innerHTML=`<p class="student-classes-empty">Classes are unavailable until the database update is installed.</p>`;return}
     const rows=Array.isArray(data)?data:[];
-    const cards=rows.map(r=>`<article class="student-class-card"><span class="student-class-icon">🏫</span><span><b>${esc(r.class_name||"Class")}</b><small>${r.subject?esc(r.subject):"GCSE Boost class"}${r.teacher_name?" · "+esc(r.teacher_name):""}</small></span><strong>JOINED ✓</strong></article>`).join("");
+    window.gcseStudentClassRows=rows;
+    const cards=rows.map((r,i)=>`<button type="button" class="student-class-card student-class-open" data-student-class="${i}"><span class="student-class-icon">🏫</span><span><b>${esc(r.class_name||"Class")}</b><small>${r.subject?esc(r.subject):"GCSE Boost class"}${r.teacher_name?" · "+esc(r.teacher_name):""}</small>${r.lesson_title?`<small class="student-class-lesson">Lesson: ${esc(r.lesson_title)}</small>`:""}</span><strong>${r.lesson_title?"OPEN →":"JOINED ✓"}</strong></button>`).join("");
     host.innerHTML=(cards||'<p class="student-classes-empty">You have not joined a class yet.</p>')+`<div class="student-class-join"><input id="homeClassJoinCode" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="Class code"><button id="homeJoinClass" type="button">JOIN A CLASS</button><div id="homeClassJoinResult"></div></div>`;
+    host.querySelectorAll("[data-student-class]").forEach(b=>b.onclick=()=>showStudentClassPage(Number(b.dataset.studentClass)));
     const btn=document.getElementById("homeJoinClass");
     if(btn)btn.onclick=async()=>{
       const input=document.getElementById("homeClassJoinCode"),code=(input?.value||"").trim().toUpperCase(),out=document.getElementById("homeClassJoinResult");
@@ -183,6 +186,15 @@
   }
   window.gcseRenderStudentClassesHome=renderStudentClassesHome;
 
+
+  function showStudentClassPage(index){
+    const r=(window.gcseStudentClassRows||[])[index];if(!r)return;
+    const overlay=document.createElement("div");overlay.className="student-class-overlay";
+    overlay.innerHTML=`<div class="student-class-page"><button class="cloud-secondary" id="studentClassClose" type="button">← BACK HOME</button><small>MY CLASS</small><h2>🏫 ${esc(r.class_name||"Class")}</h2><p>${r.subject?esc(r.subject):"GCSE Boost"} · ${esc(r.teacher_name||"Teacher")}</p>${r.lesson_title?`<section class="student-current-lesson"><small>CURRENT LESSON</small><h3>${esc(r.lesson_title)}</h3><p>${esc(r.lesson_topic||"Adaptive practice")} · 8 questions · about 10 minutes</p><button id="studentStartClassLesson" type="button">START LESSON</button></section>`:`<section class="student-current-lesson"><h3>No lesson set yet</h3><p>Your teacher has not set a class lesson yet.</p></section>`}</div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector("#studentClassClose").onclick=()=>overlay.remove();
+    const startBtn=overlay.querySelector("#studentStartClassLesson");if(startBtn)startBtn.onclick=()=>{overlay.remove();if(typeof window.gcseStartClassLesson==="function")window.gcseStartClassLesson(r.subject||"Maths",r.lesson_topic||"All")};
+  }
   async function joinClassWithCode(){
     const input=document.getElementById("cloudClassJoinCode");
     const btn=document.getElementById("cloudJoinClass");
@@ -356,18 +368,22 @@
     const cls=(window.gcseTeacherClasses||[])[index];if(!cls)return;
     const host=document.getElementById("roleTeacherDashboard");if(!host)return;
     host.innerHTML='<p class="cloud-small">Loading class…</p>';
-    const [{data:students,error:se},{data:code,error:ce}]=await Promise.all([
+    const [{data:students,error:se},{data:code,error:ce},{data:lessonRows,error:le}]=await Promise.all([
       client.rpc("get_teacher_class_students",{target_class_id:cls.id}),
-      client.rpc("get_or_create_class_join_code",{target_class_id:cls.id})
+      client.rpc("get_or_create_class_join_code",{target_class_id:cls.id}),
+      client.rpc("get_teacher_class_lesson",{target_class_id:cls.id})
     ]);
-    if(se||ce){host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← BACK</button><div class="cloud-message error">${esc((se||ce).message)}</div>`;document.getElementById("teacherBackClasses").onclick=renderRoleTeacherDashboard;return}
+    if(se||ce||le){host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← BACK</button><div class="cloud-message error">${esc((se||ce||le).message)}</div>`;document.getElementById("teacherBackClasses").onclick=renderRoleTeacherDashboard;return}
     const rows=Array.isArray(students)?students:[];
     window.gcseTeacherStudents=rows;window.gcseActiveTeacherClass=cls;
     const ov=teacherClassOverview(rows);
     const overview=rows.length?`<section class="teacher-overview"><div class="teacher-overview-title"><div><small>CLASS OVERVIEW</small><h3>At a glance</h3></div><span>Read-only learning evidence</span></div><div class="teacher-overview-grid"><div><strong>${ov.avg==null?"—":ov.avg+"%"}</strong><small>Overall mastery</small></div><div><strong>${ov.recent}/${rows.length}</strong><small>Active in 7 days</small></div><div><strong>${ov.strongest?esc(ov.strongest.subject):"—"}</strong><small>Strongest subject${ov.strongest?" · "+ov.strongest.avg+"%":""}</small></div><div><strong>${ov.weakest?esc(ov.weakest.subject):"—"}</strong><small>Developing subject${ov.weakest?" · "+ov.weakest.avg+"%":""}</small></div></div>${ov.attention?`<div class="teacher-attention-summary"><b>${ov.attention} student${ov.attention===1?"":"s"} to review</b><span>Based on recent activity or learning evidence.</span></div>`:`<div class="teacher-attention-summary clear"><b>No students currently flagged for review</b><span>Based on recent activity and learning evidence.</span></div>`}</section>`:"";
     const roster=ov.enriched.map(e=>`<article class="teacher-student-card"><button class="teacher-student-main" type="button" data-teacher-student="${e.i}"><span class="teacher-avatar">${esc(e.r.avatar||"🎓")}</span><span class="teacher-student-copy"><b>${esc(e.r.display_name||"Student")}</b><small>${Number(e.r.xp)||0} XP · ${Number(e.r.streak)||0} day streak · ${e.x.masteryAvg==null?"Mastery —":"Mastery "+e.x.masteryAvg+"%"}</small><small>${e.strongest?"Strongest: "+esc(e.strongest.subject)+" "+e.strongest.progress+"%":"No subject evidence yet"}${e.weakest&&e.weakest!==e.strongest?" · Developing: "+esc(e.weakest.subject)+" "+e.weakest.progress+"%":""}</small><small>Last activity: ${e.r.updated_at?new Date(e.r.updated_at).toLocaleDateString():"—"}</small></span><strong>PROGRESS →</strong></button>${e.attention?`<div class="teacher-attention"><b>NEEDS ATTENTION</b><span>${esc(e.attention)}</span></div>`:""}</article>`).join("");
-    host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← ALL CLASSES</button><div class="teacher-class-head"><div><h2>${esc(cls.class_name||"Class")}</h2><p class="cloud-small">${cls.subject?esc(cls.subject)+" · ":""}${rows.length} student${rows.length===1?"":"s"}</p></div><div class="teacher-code"><small>STUDENT JOIN CODE</small><strong>${esc(code||"—")}</strong><span>Students enter this from their LevelUp10 account.</span></div></div>${overview}<div class="teacher-roster">${rows.length?roster:'<div class="role-shell-empty"><h2>Waiting for students</h2><p>Share the join code above. Students can join this class without exposing their account details.</p></div>'}</div>`;
+    const currentLesson=Array.isArray(lessonRows)?lessonRows[0]:null;
+    const lessonPanel=`<section class="teacher-lesson-panel"><small>CLASS LESSON</small><h3>${currentLesson?esc(currentLesson.lesson_title):"Set a lesson"}</h3><p>${currentLesson?"Current topic: "+esc(currentLesson.lesson_topic||"All"):"Choose what students open from their class card."}</p><input id="teacherLessonTitle" class="cloud-code-input" maxlength="80" placeholder="e.g. Solving linear equations" value="${currentLesson?esc(currentLesson.lesson_title):""}"><input id="teacherLessonTopic" class="cloud-code-input" maxlength="80" placeholder="Topic/category (or All)" value="${currentLesson?esc(currentLesson.lesson_topic||"All"):"All"}"><button id="teacherSetLesson" class="cloud-primary" type="button">${currentLesson?"UPDATE LESSON":"SET LESSON"}</button><div id="teacherLessonMessage" class="cloud-message"></div></section>`;
+    host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← ALL CLASSES</button><div class="teacher-class-head"><div><h2>${esc(cls.class_name||"Class")}</h2><p class="cloud-small">${cls.subject?esc(cls.subject)+" · ":""}${rows.length} student${rows.length===1?"":"s"}</p></div><div class="teacher-code"><small>STUDENT JOIN CODE</small><strong>${esc(code||"—")}</strong><span>Students enter this from their LevelUp10 account.</span></div></div>${lessonPanel}${overview}<div class="teacher-roster">${rows.length?roster:'<div class="role-shell-empty"><h2>Waiting for students</h2><p>Share the join code above. Students can join this class without exposing their account details.</p></div>'}</div>`;
     document.getElementById("teacherBackClasses").onclick=renderRoleTeacherDashboard;
+    document.getElementById("teacherSetLesson").onclick=async()=>{const title=document.getElementById("teacherLessonTitle").value.trim(),topic=document.getElementById("teacherLessonTopic").value.trim()||"All",msg=document.getElementById("teacherLessonMessage");if(!title){msg.textContent="Enter a lesson title.";msg.className="cloud-message error";return}msg.textContent="Saving lesson…";const {error}=await client.rpc("set_teacher_class_lesson",{target_class_id:cls.id,lesson_title:title,lesson_topic:topic});if(error){msg.textContent=error.message;msg.className="cloud-message error";return}msg.textContent="Lesson set ✓";msg.className="cloud-message good";setTimeout(()=>showTeacherClass(index),350)};
     host.querySelectorAll("[data-teacher-student]").forEach(b=>b.onclick=()=>showTeacherStudentProgress(Number(b.dataset.teacherStudent)));
   }
 
