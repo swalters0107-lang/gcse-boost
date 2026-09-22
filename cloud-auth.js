@@ -298,6 +298,33 @@
     };
   }
 
+  function teacherClassOverview(rows){
+    const now=Date.now(), day=86400000;
+    const enriched=rows.map((r,i)=>{
+      const x=summariseState(r.state,r.xp), active=(x.subjects||[]).filter(s=>Number(s.attempts)>0);
+      const sorted=[...active].sort((a,b)=>(Number(b.progress)||0)-(Number(a.progress)||0));
+      const strongest=sorted[0]||null, weakest=sorted.length>1?sorted[sorted.length-1]:(sorted[0]||null);
+      const updated=r.updated_at?new Date(r.updated_at).getTime():0;
+      const days=updated?Math.max(0,Math.floor((now-updated)/day)):null;
+      const lowEvidence=active.length===0;
+      const inactive=days==null||days>=14;
+      const lowAccuracy=active.find(s=>Number(s.attempts)>=3&&Number(s.accuracy)<50)||null;
+      let attention="";
+      if(lowEvidence)attention="No learning evidence yet";
+      else if(inactive)attention=days==null?"No recent activity recorded":`No activity for ${days} days`;
+      else if(lowAccuracy)attention=`${lowAccuracy.subject}: ${Number(lowAccuracy.accuracy)||0}% recent accuracy`;
+      return {r,i,x,active,strongest,weakest,updated,days,attention};
+    });
+    const mastery=enriched.map(e=>e.x.masteryAvg).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number);
+    const avg=mastery.length?Math.round(mastery.reduce((a,b)=>a+b,0)/mastery.length):null;
+    const recent=enriched.filter(e=>e.days!=null&&e.days<7).length;
+    const attention=enriched.filter(e=>e.attention).length;
+    const subjectMap={};
+    enriched.forEach(e=>e.active.forEach(s=>{const k=s.subject||"Subject";(subjectMap[k]??=[]).push(Number(s.progress)||0)}));
+    const subjectAverages=Object.entries(subjectMap).map(([subject,vals])=>({subject,avg:Math.round(vals.reduce((a,b)=>a+b,0)/vals.length)})).sort((a,b)=>b.avg-a.avg);
+    return {enriched,avg,recent,attention,strongest:subjectAverages[0]||null,weakest:subjectAverages.length>1?subjectAverages[subjectAverages.length-1]:(subjectAverages[0]||null)};
+  }
+
   async function showTeacherClass(index){
     const cls=(window.gcseTeacherClasses||[])[index];if(!cls)return;
     const host=document.getElementById("roleTeacherDashboard");if(!host)return;
@@ -309,8 +336,10 @@
     if(se||ce){host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← BACK</button><div class="cloud-message error">${esc((se||ce).message)}</div>`;document.getElementById("teacherBackClasses").onclick=renderRoleTeacherDashboard;return}
     const rows=Array.isArray(students)?students:[];
     window.gcseTeacherStudents=rows;window.gcseActiveTeacherClass=cls;
-    host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← ALL CLASSES</button><div class="teacher-class-head"><div><h2>${esc(cls.class_name||"Class")}</h2><p class="cloud-small">${cls.subject?esc(cls.subject)+" · ":""}${rows.length} student${rows.length===1?"":"s"}</p></div><div class="teacher-code"><small>STUDENT JOIN CODE</small><strong>${esc(code||"—")}</strong><span>Students enter this from their LevelUp10 account.</span></div></div>
-      <div class="teacher-roster">${rows.length?rows.map((r,i)=>`<button class="teacher-student-row" type="button" data-teacher-student="${i}"><span class="teacher-avatar">${esc(r.avatar||"🎓")}</span><span><b>${esc(r.display_name||"Student")}</b><small>${Number(r.xp)||0} XP · ${Number(r.streak)||0} day streak</small></span><strong>PROGRESS →</strong></button>`).join(""):'<div class="role-shell-empty"><h2>Waiting for students</h2><p>Share the join code above. Students can join this class without exposing their account details.</p></div>'}</div>`;
+    const ov=teacherClassOverview(rows);
+    const overview=rows.length?`<section class="teacher-overview"><div class="teacher-overview-title"><div><small>CLASS OVERVIEW</small><h3>At a glance</h3></div><span>Read-only learning evidence</span></div><div class="teacher-overview-grid"><div><strong>${ov.avg==null?"—":ov.avg+"%"}</strong><small>Overall mastery</small></div><div><strong>${ov.recent}/${rows.length}</strong><small>Active in 7 days</small></div><div><strong>${ov.strongest?esc(ov.strongest.subject):"—"}</strong><small>Strongest subject${ov.strongest?" · "+ov.strongest.avg+"%":""}</small></div><div><strong>${ov.weakest?esc(ov.weakest.subject):"—"}</strong><small>Developing subject${ov.weakest?" · "+ov.weakest.avg+"%":""}</small></div></div>${ov.attention?`<div class="teacher-attention-summary"><b>${ov.attention} student${ov.attention===1?"":"s"} to review</b><span>Based on recent activity or learning evidence.</span></div>`:`<div class="teacher-attention-summary clear"><b>No students currently flagged for review</b><span>Based on recent activity and learning evidence.</span></div>`}</section>`:"";
+    const roster=ov.enriched.map(e=>`<article class="teacher-student-card"><button class="teacher-student-main" type="button" data-teacher-student="${e.i}"><span class="teacher-avatar">${esc(e.r.avatar||"🎓")}</span><span class="teacher-student-copy"><b>${esc(e.r.display_name||"Student")}</b><small>${Number(e.r.xp)||0} XP · ${Number(e.r.streak)||0} day streak · ${e.x.masteryAvg==null?"Mastery —":"Mastery "+e.x.masteryAvg+"%"}</small><small>${e.strongest?"Strongest: "+esc(e.strongest.subject)+" "+e.strongest.progress+"%":"No subject evidence yet"}${e.weakest&&e.weakest!==e.strongest?" · Developing: "+esc(e.weakest.subject)+" "+e.weakest.progress+"%":""}</small><small>Last activity: ${e.r.updated_at?new Date(e.r.updated_at).toLocaleDateString():"—"}</small></span><strong>PROGRESS →</strong></button>${e.attention?`<div class="teacher-attention"><b>NEEDS ATTENTION</b><span>${esc(e.attention)}</span></div>`:""}</article>`).join("");
+    host.innerHTML=`<button id="teacherBackClasses" class="cloud-secondary" type="button">← ALL CLASSES</button><div class="teacher-class-head"><div><h2>${esc(cls.class_name||"Class")}</h2><p class="cloud-small">${cls.subject?esc(cls.subject)+" · ":""}${rows.length} student${rows.length===1?"":"s"}</p></div><div class="teacher-code"><small>STUDENT JOIN CODE</small><strong>${esc(code||"—")}</strong><span>Students enter this from their LevelUp10 account.</span></div></div>${overview}<div class="teacher-roster">${rows.length?roster:'<div class="role-shell-empty"><h2>Waiting for students</h2><p>Share the join code above. Students can join this class without exposing their account details.</p></div>'}</div>`;
     document.getElementById("teacherBackClasses").onclick=renderRoleTeacherDashboard;
     host.querySelectorAll("[data-teacher-student]").forEach(b=>b.onclick=()=>showTeacherStudentProgress(Number(b.dataset.teacherStudent)));
   }

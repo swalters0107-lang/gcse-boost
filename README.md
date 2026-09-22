@@ -31,3 +31,11 @@ Fixes the Starting Assessment completion handoff: completion is flushed to Supab
 
 ## V0.23.4.3 — Balanced Adaptive Missions
 Normal 8-question missions now target 3–5 skills rather than allowing one weak topic to dominate. The weakest evidenced skills are prioritised, difficulty mixes consolidation/current/stretch around the learner target grade, recent fingerprints/patterns are strongly avoided, and the Home mission reason describes the mission as focusing on the learner's weakest subject skills.
+
+
+## V0.23.5.0 — Teacher Class Overview
+- Adds class-level mastery, 7-day activity, strongest/developing subject summary.
+- Adds per-student strongest/developing subject and last activity.
+- Adds transparent Needs Attention flags for no evidence, 14+ days inactivity, or <50% recent accuracy after at least 3 attempts.
+- Keeps individual read-only Progress view.
+- No Supabase schema change required.
