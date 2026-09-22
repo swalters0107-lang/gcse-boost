@@ -1,6 +1,6 @@
 # LevelUp10 Friends, Leaderboards and Battles — Proposed Design
 
-This is an investigation and implementation plan only. Social features are not enabled in V0.23.9.0.
+V0.24.0 implements the safeguarded Friends and weekly leaderboard foundation described below. Head-to-Head Battles remain a future phase.
 
 ## Recommended first release
 

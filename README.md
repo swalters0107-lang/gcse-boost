@@ -62,3 +62,13 @@ Normal 8-question missions now target 3–5 skills rather than allowing one weak
 - Completed class lessons are saved in the student's existing cloud-synced learning state and shown read-only in teacher student progress.
 - No Supabase schema change is required.
 - See `FRIENDS_BATTLES_DESIGN.md` for the proposed safeguarded social roadmap; social features are not enabled in this build.
+
+## V0.24.0 — Social Foundations
+- Adds parent/carer-controlled access to safeguarded social features.
+- Adds private, single-use 24-hour friend codes and friend requests.
+- Adds accept, decline, remove, block and unblock controls.
+- Adds an opt-in friends-only weekly activity leaderboard.
+- No public profile search, messaging, email exposure or automatic class friendships.
+- Head-to-Head Battles remain locked for the next phase.
+- Run `supabase_v02400_social_foundations.sql` once before testing this release.
+- Follow `V0.24.0_SOCIAL_TESTING.md` for the recommended two-student test sequence.
