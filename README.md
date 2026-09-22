@@ -1,3 +1,9 @@
+# LevelUp10 V0.24.1 — Profile Navigation Fix
+
+- Moved Progress into the grey Profile navigation bar.
+- Kept all five Profile choices visible on narrow mobile screens.
+- No database or SQL changes are required for this release.
+
 # LevelUp10 V0.23.2.2 — Student Class Join
 
 Parent Dashboard now derives Level from the same 250-XP level rule as the learner app and Mastery from the existing curriculum mastery evidence in the linked student cloud state. No new progress table or SQL migration is required.
