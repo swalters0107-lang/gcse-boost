@@ -1,3 +1,10 @@
+# LevelUp10 V0.25.0 — Friend Battles MVP
+
+- Added private asynchronous battles between accepted friends.
+- Maths, English and Science battles use the same eight Foundation-safe questions for both students.
+- Added invitations, acceptance, server-timed attempts, results, rematches and daily reward limits.
+- Run `supabase_v02500_friend_battles.sql` after the existing V0.24.0 Social Foundations migration.
+
 # LevelUp10 V0.24.2 — Friends Profile Tab
 
 - Moved Friends & Leaderboard out of Rewards into its own Profile tab.
